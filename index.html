@@ -123,7 +123,6 @@
                 border-radius: 20px 20px 0 0; padding: 15px;
                 box-shadow: 0 -5px 15px rgba(0,0,0,0.05); gap: 15px;
             }
-            /* 手機版改為一排三個按鈕，以符合目前的場景數量 */
             .scene-btns { grid-template-columns: repeat(3, 1fr); }
             .scene-btns button { font-size: 12px; padding: 8px 2px; }
             #toast { top: 10px; font-size: 14px; }
@@ -159,8 +158,8 @@
                 <progress id="task-feed-bar" max="1" value="0"></progress>
             </div>
             <div class="task">
-                <div class="task-title"><span>切換場景</span> <span id="task-scene-text">0/1</span></div>
-                <progress id="task-scene-bar" max="1" value="0"></progress>
+                <div class="task-title"><span>切換場景</span> <span id="task-scene-text">0/3</span></div>
+                <progress id="task-scene-bar" max="3" value="0"></progress>
             </div>
         </div>
 
@@ -201,7 +200,6 @@
             currentScene: 'room'
         };
 
-        // --- 取消冰原，重新分配的 30 種動物字典 ---
         const animalData = {
             'room':  ['🐈', '🐕', '🐹', '🦜', '🐰', '🐭', '🦎'],
             'grass': ['🦊', '🐼', '🐨', '🦔', '🦘', '🐎', '🐑', '🦒', '🐺', '🦉', '🦌', '🐐', '🐻'],
@@ -220,13 +218,11 @@
         function init() {
             loadData();
             
-            // 防呆處理：如果玩家原本有冰原的進度，載入時強制將冰原的動物分配回正確的新家
             state.animals.forEach(animal => {
                 if(animal.scene === 'ice') {
                     animal.scene = animalSceneMap[animal.emoji] || 'grass';
                 }
             });
-            // 防呆處理：如果玩家原本停留在冰原，將其送回房間
             if(state.currentScene === 'ice') {
                 state.currentScene = 'room';
             }
@@ -274,8 +270,9 @@
             document.getElementById('task-feed-bar').value = state.tasks.feed;
             document.getElementById('task-feed-text').innerText = `${state.tasks.feed}/1`;
             
+            // 任務門檻改為 3
             document.getElementById('task-scene-bar').value = state.tasks.scene;
-            document.getElementById('task-scene-text').innerText = `${state.tasks.scene}/1`;
+            document.getElementById('task-scene-text').innerText = `${state.tasks.scene}/3`;
 
             document.getElementById('ticket-count').innerText = state.tickets;
             document.getElementById('btn-gacha').disabled = state.tickets < 1;
@@ -309,19 +306,24 @@
         }
 
         function changeScene(sceneId, sceneName, skipTask = false) {
+            // 防呆機制：如果按下的場景跟目前的一樣，就什麼都不做直接結束
+            if (!skipTask && state.currentScene === sceneId) {
+                return;
+            }
+
             state.currentScene = sceneId;
             const container = document.getElementById('scene-container');
             container.className = `bg-${sceneId}`;
             renderAnimals(); 
             
             if (!skipTask) {
-                progressTask('scene', 1);
+                // 將任務門檻提高到 3
+                progressTask('scene', 3);
                 showToast(`抵達 ${sceneName}`);
             }
         }
 
         function getSceneName(id) {
-            // 更新地名對照表，移除冰原
             const map = { room:'房間', grass:'草原', ocean:'海洋' };
             return map[id];
         }

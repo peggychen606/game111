@@ -166,16 +166,24 @@
 <body>
 
     <!-- 開頭畫面 -->
-    <div id="start-screen">
-        <div class="start-content">
-            <h1>療癒動物園</h1>
-            <p>一個沒有壓力的水彩風空間</p>
-            <button class="btn-start" onclick="startGame()">Game Start</button>
-        </div>
-        <div class="marquee">
-            <div class="marquee-content"><span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span><span>🐏</span><span>🐥</span><span>🦆</span><span>🐷</span></div>
-            <div class="marquee-content"><span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span><span>🐏</span><span>🐥</span><span>🦆</span><span>🐷</span></div>
-        </div>
+    /* 中間新增的跑馬燈容器 */
+        .middle-marquee {
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            margin: 20px 0; /* 控制與標題和按鈕的間距 */
+            justify-content: center;
+        }
+
+        .middle-marquee .marquee-content {
+            animation: scroll 15s linear infinite; /* 稍微快一點點更有活力 */
+        }
+
+        .middle-marquee span {
+            font-size: 40px; /* 大小適中，不會搶走按鈕的風采 */
+            margin: 0 10px;
+            animation: bob 0.8s ease-in-out infinite alternate;
+        }
     </div>
 
     <!-- 遊戲主體 -->

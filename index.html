@@ -7,9 +7,77 @@
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
         
-        body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #faf8f5; }
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #faf8f5; }
+
+        /* =========================================
+           開頭畫面設定
+           ========================================= */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            /* 開頭畫面使用溫暖的房間水彩流動背景 */
+            background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4);
+            background-size: 300% 300%;
+            animation: watercolorFlow 15s ease-in-out infinite;
+        }
+
+        .start-content {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 50px 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        .start-content h1 {
+            font-size: 40px;
+            color: #5d5d5d;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .start-content p {
+            color: #888;
+            font-size: 16px;
+            margin: 0 0 40px 0;
+        }
+
+        .btn-start {
+            background: #ffb7b2;
+            color: white;
+            font-size: 22px;
+            padding: 15px 50px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 183, 178, 0.4);
+        }
+
+        .btn-start:hover {
+            background: #ff9e99;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 183, 178, 0.6);
+        }
+
+        /* =========================================
+           遊戲主體容器 (預設隱藏，按 Start 後顯示)
+           ========================================= */
+        #game-container {
+            display: none; /* 初始隱藏 */
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
         
-        /* 主場景區 - 簡約水彩流動動畫 */
+        /* 主場景區 */
         #scene-container { 
             flex: 1; 
             position: relative; 
@@ -94,10 +162,9 @@
         .scene-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .action-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
 
-        /* 小動物實體 - 基礎大小調大為 60px */
         .animal {
             position: absolute;
-            font-size: 60px; /* 這裡從原本的 40px 放大 */
+            font-size: 60px; 
             cursor: pointer;
             user-select: none;
             transition: left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -138,77 +205,94 @@
             }
             .scene-btns button { font-size: 12px; padding: 8px 2px; }
             .action-btns { flex-direction: row; }
+            
+            /* 手機版開頭畫面微調 */
+            .start-content { padding: 40px 30px; width: 90%; }
+            .start-content h1 { font-size: 32px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="scene-container" class="bg-room">
-        <div id="toast">系統提示</div>
+    <!-- 開頭畫面 -->
+    <div id="start-screen">
+        <div class="start-content">
+            <h1>療癒動物園</h1>
+            <p>一個沒有壓力的水彩風空間</p>
+            <button class="btn-start" onclick="startGame()">Game Start</button>
+        </div>
     </div>
 
-    <div id="bottom-bar">
-        <div class="intro-panel">
-            <h2>療癒動物園</h2>
-            <p style="color:#888; font-size:12px; margin-top:5px;">放鬆心情，<br>隨時可以離開</p>
+    <!-- 遊戲主體 (預設隱藏) -->
+    <div id="game-container">
+        <div id="scene-container" class="bg-room">
+            <div id="toast">系統提示</div>
         </div>
 
-        <div class="panel">
-            <h3>🌱 紓壓任務</h3>
-            <div class="task" style="margin-top: 10px;">
-                <div class="task-title"><span>陪伴 5 分鐘</span> <span id="task-time-text">0/300</span></div>
-                <progress id="task-time-bar" max="300" value="0"></progress>
+        <div id="bottom-bar">
+            <div class="intro-panel">
+                <h2>療癒動物園</h2>
+                <p style="color:#888; font-size:12px; margin-top:5px;">放鬆心情，<br>隨時可以離開</p>
             </div>
-            <div class="task">
-                <div class="task-title"><span>撫摸小動物</span> <span id="task-pet-text">0/3</span></div>
-                <progress id="task-pet-bar" max="3" value="0"></progress>
-            </div>
-            <div class="task">
-                <div class="task-title"><span>餵食 5 次</span> <span id="task-feed-text">0/5</span></div>
-                <progress id="task-feed-bar" max="5" value="0"></progress>
-            </div>
-            <div class="task">
-                <div class="task-title"><span>切換場景</span> <span id="task-scene-text">0/3</span></div>
-                <progress id="task-scene-bar" max="3" value="0"></progress>
-            </div>
-        </div>
 
-        <div class="panel">
-            <h3 style="display:flex; justify-content:space-between;">
-                <span>🎟️ 抽獎券</span>
-                <span id="ticket-count" style="color:#ffb7b2;">0</span>
-            </h3>
-            <button id="btn-gacha" class="gacha-btn" style="width:100%; margin-top:10px; height: 60px;" disabled>
-                消耗 1 張券抽獎
-            </button>
-        </div>
-
-        <div class="panel">
-            <h3>🎨 切換場景</h3>
-            <div class="scene-btns">
-                <button onclick="changeScene('room', '房間')">🏠 房間</button>
-                <button onclick="changeScene('grass', '草原')">🌿 草原</button>
-                <button onclick="changeScene('ocean', '海洋')">🌊 海洋</button>
+            <div class="panel">
+                <h3>🌱 紓壓任務</h3>
+                <div class="task" style="margin-top: 10px;">
+                    <div class="task-title"><span>陪伴 5 分鐘</span> <span id="task-time-text">0/300</span></div>
+                    <progress id="task-time-bar" max="300" value="0"></progress>
+                </div>
+                <div class="task">
+                    <div class="task-title"><span>撫摸小動物</span> <span id="task-pet-text">0/3</span></div>
+                    <progress id="task-pet-bar" max="3" value="0"></progress>
+                </div>
+                <div class="task">
+                    <div class="task-title"><span>餵食 5 次</span> <span id="task-feed-text">0/5</span></div>
+                    <progress id="task-feed-bar" max="5" value="0"></progress>
+                </div>
+                <div class="task">
+                    <div class="task-title"><span>切換場景</span> <span id="task-scene-text">0/3</span></div>
+                    <progress id="task-scene-bar" max="3" value="0"></progress>
+                </div>
             </div>
-        </div>
 
-        <div class="panel">
-            <h3>🍎 互動</h3>
-            <div class="action-btns">
-                <button onclick="feedOneAnimal()" style="flex:1; background: #ffccbc; color: #d84315;">餵食一隻小動物</button>
-                <button onclick="clearData()" style="flex:1; background:#f5f5f5; font-size:12px;">清除進度</button>
+            <div class="panel">
+                <h3 style="display:flex; justify-content:space-between;">
+                    <span>🎟️ 抽獎券</span>
+                    <span id="ticket-count" style="color:#ffb7b2;">0</span>
+                </h3>
+                <button id="btn-gacha" class="gacha-btn" style="width:100%; margin-top:10px; height: 60px;" disabled>
+                    消耗 1 張券抽獎
+                </button>
+            </div>
+
+            <div class="panel">
+                <h3>🎨 切換場景</h3>
+                <div class="scene-btns">
+                    <button onclick="changeScene('room', '房間')">🏠 房間</button>
+                    <button onclick="changeScene('grass', '草原')">🌿 草原</button>
+                    <button onclick="changeScene('ocean', '海洋')">🌊 海洋</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>🍎 互動</h3>
+                <div class="action-btns">
+                    <button onclick="feedOneAnimal()" style="flex:1; background: #ffccbc; color: #d84315;">餵食一隻小動物</button>
+                    <button onclick="clearData()" style="flex:1; background:#f5f5f5; font-size:12px;">清除進度</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 遊戲資料與狀態 ---
         let state = {
             tickets: 0,
             tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
             animals: [], 
             currentScene: 'room'
         };
+        
+        let isGameStarted = false; // 記錄遊戲是否已經正式開始
 
         const animalData = {
             'room':  ['🐈', '🐕', '🐹', '🦜', '🐰', '🐭', '🦎'],
@@ -242,8 +326,20 @@
             }
             
             updateUI(); 
-            startTimer();
+            // 注意：這裡將 startTimer() 移除了，改到點擊 Start 後才開始
             changeScene(state.currentScene, getSceneName(state.currentScene), true);
+        }
+
+        // --- 點擊 Game Start 按鈕觸發 ---
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            
+            if (!isGameStarted) {
+                startTimer();
+                isGameStarted = true;
+                showToast('歡迎來到療癒動物園！');
+            }
         }
 
         function saveData() {
@@ -384,16 +480,15 @@
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
-                // --- 所有等級的尺寸都經過放大 ---
                 if (animal.level === 2) {
-                    el.style.fontSize = '75px'; // 原本 55px
+                    el.style.fontSize = '75px'; 
                 } else if (animal.level === 3) {
-                    el.style.fontSize = '90px'; // 原本 70px
+                    el.style.fontSize = '90px'; 
                 } else if (animal.level === 4) {
-                    el.style.fontSize = '110px'; // 原本 85px
+                    el.style.fontSize = '110px';
                     el.innerText = animal.emoji + '✨'; 
                 } else if (animal.level >= 5) {
-                    el.style.fontSize = '130px'; // 原本 100px
+                    el.style.fontSize = '130px';
                     el.innerText = animal.emoji + '👑'; 
                     el.style.filter = 'drop-shadow(0px 0px 15px rgba(255, 215, 0, 1))';
                 }

@@ -215,9 +215,19 @@
         
         function clearData() {
             if(confirm("確定要重置所有進度嗎？動物都會消失喔！")) {
-                localStorage.removeItem('healing_game_data');
+                // 直接將狀態強制重置為最原始的空白狀態
+                state = {
+                    tickets: 0,
+                    tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
+                    animals: [], 
+                    currentScene: 'room'
+                };
+                // 強制覆蓋掉瀏覽器裡的舊紀錄
+                localStorage.setItem('healing_game_data', JSON.stringify(state));
+                // 重新載入網頁
                 location.reload();
             }
+        }
         }
 
         // --- UI 更新 ---

@@ -282,7 +282,8 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.opacity = 1;
-            setTimeout(() => toast.style.opacity = 0, 2500);
+            // 將原本的 2500 (2.5秒) 改為 5000 (5秒)
+            setTimeout(() => toast.style.opacity = 0, 5000);
         }
 
         // --- 任務系統 ---

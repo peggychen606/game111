@@ -78,6 +78,9 @@
 
         @media (prefers-reduced-motion: reduce) {
             .marquee-content, .marquee-content span, #start-screen { animation: none !important; }
+            .reveal-halo { display: none; }
+            .reveal-emoji { animation: revealFade 0.3s both !important; }
+            .animal.spotlight::before { animation: none; opacity: 0.8; }
         }
 
         /* =========================================
@@ -97,41 +100,148 @@
         #scene-container.bg-ocean { background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); }
 
         #bottom-bar {
-            width: 100%; background: rgba(255, 255, 255, 0.95); box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-            padding: 15px 20px; display: flex; flex-direction: row; gap: 15px; z-index: 10; overflow-x: auto; align-items: stretch;
+            width: 100%; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+            padding: 10px 18px; display: flex; flex-direction: row; gap: 14px;
+            z-index: 10; align-items: center; flex-shrink: 0;
         }
 
         h2, h3 { margin: 0; color: #5d5d5d; }
 
-        button { border: none; padding: 10px 15px; border-radius: 8px; background: #e0d4c8; color: #5d5d5d; cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: bold; }
-        button:hover { background: #d0c0b0; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
+        button { border: none; border-radius: 10px; background: transparent; color: #5d5d5d; cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: bold; }
+        button:focus-visible { outline: 3px solid #b2d8d8; outline-offset: 2px; }
 
-        .gacha-btn { background: #ffb7b2; color: white; font-size: 16px; padding: 15px; text-align: center; }
-        .gacha-btn:hover { background: #ff9e99; }
-        .gacha-btn:disabled { background: #e0e0e0; cursor: not-allowed; transform: none; }
+        /* ---- 場景切換：主角，用分段控制項 ---- */
+        .scene-switch { display: flex; gap: 4px; background: #f4f0ea; padding: 4px; border-radius: 14px; }
+        .scene-chip {
+            display: flex; align-items: center; gap: 7px;
+            padding: 9px 14px; border-radius: 10px; color: #8a8078;
+            white-space: nowrap; position: relative;
+        }
+        .scene-chip:hover { background: rgba(255,255,255,0.6); color: #5d5d5d; }
+        .scene-chip.active { background: #fff; color: #5d5d5d; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .chip-emoji { font-size: 18px; line-height: 1; }
+        .chip-count {
+            font-size: 11px; min-width: 18px; height: 18px; line-height: 18px;
+            border-radius: 9px; background: #e8e2d9; color: #8a8078; padding: 0 5px;
+        }
+        .scene-chip.active .chip-count { background: #b2d8d8; color: #fff; }
+        .chip-count.empty { opacity: 0.35; }
 
-        .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); flex: 1; min-width: 220px; }
-        .intro-panel { display: flex; flex-direction: column; justify-content: center; min-width: 150px; flex: 0.5; }
+        /* ---- 任務：退成一排細記號 ---- */
+        .task-strip { display: flex; gap: 14px; align-items: center; margin-left: 4px; }
+        .mini-task { display: flex; flex-direction: column; gap: 5px; align-items: center; cursor: default; }
+        .mini-task .mt-icon { font-size: 15px; line-height: 1; opacity: 0.75; transition: 0.3s; }
+        .mini-bar { width: 42px; height: 4px; border-radius: 2px; background: #eee9e2; overflow: hidden; }
+        .mini-bar i { display: block; height: 100%; width: 0; background: #b2d8d8; border-radius: 2px; transition: width 0.4s ease-out; }
+        .mini-task.done .mt-icon { opacity: 1; transform: scale(1.25); }
 
-        .task { margin-bottom: 12px; font-size: 14px; color: #666; }
-        .task-title { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        progress { width: 100%; height: 8px; border-radius: 4px; }
-        progress::-webkit-progress-bar { background-color: #f0f0f0; border-radius: 4px; }
-        progress::-webkit-progress-value { background-color: #b2d8d8; border-radius: 4px; }
+        .bar-spacer { flex: 1; min-width: 8px; }
 
-        .scene-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;}
+        /* ---- 動作區 ---- */
+        .bar-actions { display: flex; gap: 8px; align-items: center; position: relative; }
+
+        .btn-feed { background: #ffe9e0; color: #d84315; padding: 11px 16px; }
+        .btn-feed:hover { background: #ffdccd; }
+
+        .gacha-btn {
+            background: #ffb7b2; color: white; padding: 11px 18px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 3px 10px rgba(255, 183, 178, 0.45);
+        }
+        .gacha-btn:hover:not(:disabled) { background: #ff9e99; transform: translateY(-2px); }
+        .gacha-btn:disabled { background: #f0ece7; color: #b5aca3; box-shadow: none; cursor: not-allowed; }
+        .gacha-btn .tk {
+            background: rgba(255,255,255,0.3); border-radius: 8px; padding: 2px 8px; font-size: 13px;
+        }
+        .gacha-btn:disabled .tk { background: rgba(0,0,0,0.05); }
+
+        .btn-icon { padding: 11px 13px; background: #f4f0ea; font-size: 16px; }
+        .btn-icon:hover { background: #e8e2d9; }
+
+        .more-menu {
+            display: none; position: absolute; right: 0; bottom: calc(100% + 10px);
+            background: #fff; border-radius: 12px; padding: 6px; min-width: 150px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.14); z-index: 30;
+        }
+        .more-menu.open { display: block; }
+        .more-menu button { display: block; width: 100%; text-align: left; padding: 11px 12px; font-weight: normal; }
+        .more-menu button:hover { background: #faf8f5; }
+        .more-menu .danger { color: #c0705f; }
 
         .animal {
             position: absolute; font-size: 60px; cursor: pointer; user-select: none;
             transition: left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex; align-items: center; justify-content: center; width: 120px; height: 120px; -webkit-tap-highlight-color: transparent;
+            isolation: isolate;
         }
         .animal:hover { transform: scale(1.1) !important; }
 
         .particle { position: absolute; font-size: 20px; animation: floatUp 1s ease-out forwards; pointer-events: none; z-index: 50; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+
+        /* =========================================
+           抽獎揭曉：全站唯一該搶眼的地方
+           ========================================= */
+        #reveal {
+            position: absolute; inset: 0; z-index: 200;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255, 253, 250, 0.72); backdrop-filter: blur(6px);
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+        }
+        #reveal.show { display: flex; animation: revealFade 0.35s ease-out; }
+        @keyframes revealFade { from { opacity: 0; } to { opacity: 1; } }
+
+        .reveal-stage { position: relative; display: flex; align-items: center; justify-content: center; }
+
+        /* 化開的水彩暈：從動物身後推出去 */
+        .reveal-halo {
+            position: absolute; width: 220px; height: 220px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,183,178,0.55) 0%, rgba(255,224,178,0.3) 45%, transparent 70%);
+            animation: haloBloom 1.4s ease-out forwards;
+        }
+        @keyframes haloBloom {
+            0% { transform: scale(0.2); opacity: 0.95; }
+            100% { transform: scale(2.6); opacity: 0; }
+        }
+
+        .reveal-emoji {
+            font-size: 130px; line-height: 1; position: relative;
+            animation: revealPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both, bob 1.6s 0.7s ease-in-out infinite alternate;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.12));
+        }
+        @keyframes revealPop {
+            0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .reveal-caption {
+            margin-top: 26px; text-align: center;
+            animation: revealFade 0.5s 0.45s both;
+        }
+        .reveal-kicker { font-size: 13px; color: #a89e94; letter-spacing: 3px; margin-bottom: 8px; }
+        .reveal-name { font-size: 26px; color: #5d5d5d; font-weight: bold; letter-spacing: 1px; }
+        .reveal-where { font-size: 14px; color: #918a82; margin-top: 14px; }
+        .reveal-go {
+            margin-top: 16px; background: #ffb7b2; color: #fff; padding: 11px 26px;
+            border-radius: 50px; font-size: 15px; box-shadow: 0 4px 14px rgba(255,183,178,0.5);
+        }
+        .reveal-go:hover { background: #ff9e99; transform: translateY(-2px); }
+        .reveal-hint { position: absolute; bottom: 24px; font-size: 12px; color: #b5aca3; animation: revealFade 0.5s 1.4s both; }
+        .reveal-soft { font-size: 12px; color: #b5aca3; margin-top: 12px; letter-spacing: 1px; }
+
+        /* 揭曉後，牠在場景裡還會亮一陣子 */
+        #scene-container.spotlighting .animal:not(.spotlight) { opacity: 0.3; }
+        .animal { transition: left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s; }
+        .animal.spotlight::before {
+            content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,183,178,0.45) 0%, transparent 65%);
+            animation: spotPulse 2s ease-in-out infinite; z-index: -1;
+        }
+        @keyframes spotPulse {
+            0%, 100% { transform: scale(0.85); opacity: 0.5; }
+            50% { transform: scale(1.35); opacity: 1; }
+        }
 
         #toast {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
@@ -176,9 +286,18 @@
         .btn-back { background: #e0d4c8; margin-bottom: 15px; font-size: 14px; padding: 8px 20px; }
 
         @media (max-width: 768px) {
-            #scene-container { height: 50vh; flex: none; }
-            #bottom-bar { flex-direction: column; max-height: 50vh; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 20px; }
-            .scene-btns button { font-size: 12px; padding: 8px 2px; }
+            /* 場景保留最大面積，工具列只佔兩小行 */
+            #bottom-bar {
+                flex-wrap: wrap; gap: 10px; padding: 10px 12px 14px;
+                border-radius: 18px 18px 0 0;
+            }
+            .scene-switch { flex: 1 1 100%; order: 1; }
+            .scene-chip { flex: 1; justify-content: center; padding: 10px 4px; font-size: 13px; }
+            .task-strip { order: 2; gap: 10px; margin-left: 0; }
+            .mini-bar { width: 32px; }
+            .bar-spacer { display: none; }
+            .bar-actions { order: 3; margin-left: auto; }
+            .btn-feed, .gacha-btn { padding: 10px 12px; font-size: 13px; }
             .start-content { padding: 40px 30px; width: 90%; }
             .start-content h1 { font-size: 32px; }
             .marquee-content span { font-size: 38px; margin: 0 15px; }
@@ -213,59 +332,62 @@
     <div id="game-container">
         <div id="scene-container" class="bg-room">
             <div id="toast">系統提示</div>
+
+            <div id="reveal" onclick="closeReveal()">
+                <div class="reveal-stage">
+                    <div class="reveal-halo"></div>
+                    <div class="reveal-emoji" id="reveal-emoji">🐰</div>
+                </div>
+                <div class="reveal-caption">
+                    <div class="reveal-kicker" id="reveal-kicker">新朋友</div>
+                    <div class="reveal-name" id="reveal-name"></div>
+                    <div class="reveal-where" id="reveal-where"></div>
+                </div>
+                <div class="reveal-hint">點一下繼續</div>
+            </div>
         </div>
 
         <div id="bottom-bar">
-            <div class="intro-panel">
-                <h2>療癒動物園</h2>
-                <p style="color:#888; font-size:12px; margin-top:5px;">放鬆心情，<br>隨時可以離開</p>
-            </div>
-
-            <div class="panel">
-                <h3>🌱 紓壓任務</h3>
-                <div class="task" style="margin-top: 10px;">
-                    <div class="task-title"><span>陪伴 5 分鐘</span> <span id="task-time-text">0/300</span></div>
-                    <progress id="task-time-bar" max="300" value="0"></progress>
-                </div>
-                <div class="task">
-                    <div class="task-title"><span>撫摸小動物</span> <span id="task-pet-text">0/3</span></div>
-                    <progress id="task-pet-bar" max="3" value="0"></progress>
-                </div>
-                <div class="task">
-                    <div class="task-title"><span>餵食 5 次</span> <span id="task-feed-text">0/5</span></div>
-                    <progress id="task-feed-bar" max="5" value="0"></progress>
-                </div>
-                <div class="task">
-                    <div class="task-title"><span>切換場景</span> <span id="task-scene-text">0/3</span></div>
-                    <progress id="task-scene-bar" max="3" value="0"></progress>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h3 style="display:flex; justify-content:space-between;">
-                    <span>🎟️ 抽獎券</span>
-                    <span id="ticket-count" style="color:#ffb7b2;">0</span>
-                </h3>
-                <button id="btn-gacha" class="gacha-btn" style="width:100%; margin-top:10px; height: 60px;" disabled>
-                    消耗 1 張券抽獎
+            <div class="scene-switch" role="group" aria-label="切換場景">
+                <button class="scene-chip" data-scene="room" onclick="changeScene('room', '房間')">
+                    <span class="chip-emoji">🏠</span>房間<span class="chip-count" id="count-room">0</span>
+                </button>
+                <button class="scene-chip" data-scene="grass" onclick="changeScene('grass', '草原')">
+                    <span class="chip-emoji">🌿</span>草原<span class="chip-count" id="count-grass">0</span>
+                </button>
+                <button class="scene-chip" data-scene="ocean" onclick="changeScene('ocean', '海洋')">
+                    <span class="chip-emoji">🌊</span>海洋<span class="chip-count" id="count-ocean">0</span>
                 </button>
             </div>
 
-            <div class="panel">
-                <h3>🎨 切換場景</h3>
-                <div class="scene-btns">
-                    <button onclick="changeScene('room', '房間')">🏠 房間</button>
-                    <button onclick="changeScene('grass', '草原')">🌿 草原</button>
-                    <button onclick="changeScene('ocean', '海洋')">🌊 海洋</button>
+            <div class="task-strip" id="task-strip">
+                <div class="mini-task" id="mt-time" title="陪伴 5 分鐘">
+                    <span class="mt-icon">⏳</span><div class="mini-bar"><i></i></div>
+                </div>
+                <div class="mini-task" id="mt-pet" title="撫摸小動物 3 次">
+                    <span class="mt-icon">🤍</span><div class="mini-bar"><i></i></div>
+                </div>
+                <div class="mini-task" id="mt-feed" title="餵食 5 次">
+                    <span class="mt-icon">🍎</span><div class="mini-bar"><i></i></div>
+                </div>
+                <div class="mini-task" id="mt-scene" title="切換場景 3 次">
+                    <span class="mt-icon">🧭</span><div class="mini-bar"><i></i></div>
                 </div>
             </div>
 
-            <div class="panel">
-                <h3>🍎 互動</h3>
-                <div class="action-btns">
-                    <button onclick="feedOneAnimal()" style="background: #ffccbc; color: #d84315;">餵食一隻</button>
-                    <button onclick="openHandbook()" style="background: #b2d8d8; color: #3b5959;">📖 圖鑑</button>
-                    <button onclick="clearData()" style="grid-column: span 2; background:#f5f5f5; font-size:12px;">清除進度</button>
+            <div class="bar-spacer"></div>
+
+            <div class="bar-actions">
+                <button class="btn-feed" onclick="feedOneAnimal()">🍎 餵食</button>
+
+                <button id="btn-gacha" class="gacha-btn" disabled>
+                    <span class="tk">🎟️ <b id="ticket-count">0</b></span> 抽獎
+                </button>
+
+                <button class="btn-icon" onclick="toggleMenu(event)" aria-label="更多" aria-haspopup="true">⋯</button>
+                <div class="more-menu" id="more-menu">
+                    <button onclick="openHandbook(); closeMenu()">📖 動物圖鑑</button>
+                    <button class="danger" onclick="closeMenu(); clearData()">🧹 清除進度</button>
                 </div>
             </div>
         </div>
@@ -293,12 +415,19 @@
     </div>
 
     <script>
-        let state = {
+        const SAVE_KEY = 'healing_game_data';
+        const SAVE_VERSION = 2;
+
+        const defaultState = () => ({
+            version: SAVE_VERSION,
             tickets: 0,
             tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
             animals: [],
-            currentScene: 'room'
-        };
+            currentScene: 'room',
+            dupeStreak: 0
+        });
+
+        let state = defaultState();
 
         let isGameStarted = false;
 
@@ -371,41 +500,70 @@
             }
         }
 
-        function saveData() { localStorage.setItem('healing_game_data', JSON.stringify(state)); }
+        function saveData() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+
         function loadData() {
-            const saved = localStorage.getItem('healing_game_data');
-            if (saved) {
-                try { state = JSON.parse(saved); } catch (e) { console.warn('存檔毀損，改用新進度'); }
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (!saved) return;
+            try {
+                // 疊在預設值上，舊存檔缺的欄位會自動補齊
+                const parsed = JSON.parse(saved);
+                state = { ...defaultState(), ...parsed, tasks: { ...defaultState().tasks, ...(parsed.tasks || {}) } };
+                state.version = SAVE_VERSION;
+            } catch (e) {
+                console.warn('存檔毀損，改用新進度');
+                state = defaultState();
             }
         }
 
         function clearData() {
             if(confirm("確定要重置所有進度嗎？動物都會消失喔！")) {
                 if (window.animalIntervals) window.animalIntervals.forEach(clearInterval);
-                state = { tickets: 0, tasks: { time: 0, pet: 0, feed: 0, scene: 0 }, animals: [], currentScene: 'room' };
+                state = defaultState();
                 saveData();
                 location.reload();
             }
         }
 
+        const TASK_MAX = { time: 300, pet: 3, feed: 5, scene: 3 };
+        const TASK_LABEL = { time: '陪伴 5 分鐘', pet: '撫摸小動物', feed: '餵食', scene: '切換場景' };
+
         function updateUI() {
-            document.getElementById('task-time-bar').value = state.tasks.time;
-            document.getElementById('task-time-text').innerText = `${state.tasks.time}/300`;
-
-            document.getElementById('task-pet-bar').value = state.tasks.pet;
-            document.getElementById('task-pet-text').innerText = `${state.tasks.pet}/3`;
-
-            document.getElementById('task-feed-bar').value = state.tasks.feed;
-            document.getElementById('task-feed-text').innerText = `${state.tasks.feed}/5`;
-
-            document.getElementById('task-scene-bar').value = state.tasks.scene;
-            document.getElementById('task-scene-text').innerText = `${state.tasks.scene}/3`;
+            // 任務：只用一條細線表示比例，數字放在 tooltip 裡
+            for (const key in TASK_MAX) {
+                const el = document.getElementById('mt-' + key);
+                const pct = (state.tasks[key] / TASK_MAX[key]) * 100;
+                el.querySelector('i').style.width = pct + '%';
+                el.classList.toggle('done', pct >= 100);
+                el.title = `${TASK_LABEL[key]}　${state.tasks[key]}/${TASK_MAX[key]}`;
+            }
 
             document.getElementById('ticket-count').innerText = state.tickets;
             document.getElementById('btn-gacha').disabled = state.tickets < 1;
 
+            updateSceneChips();
             saveData();
         }
+
+        function updateSceneChips() {
+            ['room', 'grass', 'ocean'].forEach(id => {
+                const n = state.animals.filter(a => a.scene === id).length;
+                const badge = document.getElementById('count-' + id);
+                badge.innerText = n;
+                badge.classList.toggle('empty', n === 0);
+            });
+            document.querySelectorAll('.scene-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.scene === state.currentScene);
+            });
+        }
+
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('more-menu').classList.toggle('open');
+        }
+        function closeMenu() { document.getElementById('more-menu').classList.remove('open'); }
+        document.addEventListener('click', closeMenu);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -434,6 +592,7 @@
             state.currentScene = sceneId;
             document.getElementById('scene-container').className = `bg-${sceneId}`;
             renderAnimals();
+            updateUI();
             if (!skipTask) { progressTask('scene', 3); showToast(`抵達 ${sceneName}`); }
         }
 
@@ -468,7 +627,7 @@
                 if (animal.scene !== state.currentScene) return;
 
                 const el = document.createElement('div');
-                el.className = 'animal';
+                el.className = 'animal' + (animal.id === highlightId ? ' spotlight' : '');
                 el.id = 'animal-' + animal.id;
                 el.innerText = animal.emoji;
 
@@ -496,13 +655,15 @@
                 };
 
                 setTimeout(() => {
-                    el.style.transition = 'left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    el.style.transition = 'left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease';
                     startWalking();
                 }, 50);
 
                 let walkInterval = setInterval(startWalking, 3000 + Math.random() * 3000);
                 window.animalIntervals.push(walkInterval);
             });
+
+            applySpotlight();
         }
 
         function createParticle(x, y, emoji = '❤️') {
@@ -513,29 +674,122 @@
             setTimeout(() => particle.remove(), 1000);
         }
 
-        document.getElementById('btn-gacha').onclick = () => {
-            if (state.tickets >= 1) {
-                state.tickets--;
-                const newEmoji = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
-                const targetScene = animalSceneMap[newEmoji];
-                const existing = state.animals.find(a => a.emoji === newEmoji);
+        let highlightId = null;
+        let spotlightTimer = null;
 
-                if (existing) {
-                    if (existing.level < 5) {
-                        existing.level++;
-                        if(existing.level === 2) showToast(`🌱 驚喜！${newEmoji} 長大成【小朋友】了！`);
-                        if(existing.level === 3) showToast(`✨ 哇！${newEmoji} 已經長大【成年】了！`);
-                        if(existing.level === 4) showToast(`🌟 奇蹟！${newEmoji} 【得到星星】了！`);
-                        if(existing.level === 5) showToast(`👑 太神了！${newEmoji} 【得到皇冠】了！`);
-                    } else showToast(`💖 你的 ${newEmoji} 已經戴著皇冠滿級了，牠開心地蹭了蹭你！`);
-                } else {
-                    addAnimal(newEmoji);
-                    if (targetScene === state.currentScene) showToast(`🎁 恭喜抽到新朋友：${newEmoji}【小寶寶】！`);
-                    else showToast(`🎁 抽到 ${newEmoji}【小寶寶】！牠跑到【${getSceneName(targetScene)}】囉！`);
-                }
-                updateUI(); renderAnimals();
+        const STAGE_NAME = { 1: '小寶寶', 2: '小朋友', 3: '成年', 4: '得到星星', 5: '得到皇冠' };
+
+        // 保底：連續抽到重複，遇見新朋友的機率就往上加，第 3 次必中
+        const PITY_BASE = 0.40;
+        const PITY_STEP = 0.20;
+
+        const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+        function drawEmoji() {
+            const collected = new Set(state.animals.map(a => a.emoji));
+            const uncollected = availableAnimals.filter(e => !collected.has(e));
+            const upgradable = state.animals.filter(a => a.level < 5);
+
+            // 圖鑑滿了：把券留給還沒長大的孩子，不浪費在已滿級的身上
+            if (uncollected.length === 0) {
+                return upgradable.length ? pick(upgradable).emoji : pick(state.animals).emoji;
             }
+            // 大家都滿級了，只剩新朋友可遇
+            if (upgradable.length === 0) return pick(uncollected);
+
+            const chance = Math.min(1, PITY_BASE + PITY_STEP * state.dupeStreak);
+            return Math.random() < chance ? pick(uncollected) : pick(upgradable).emoji;
+        }
+
+        document.getElementById('btn-gacha').onclick = (e) => {
+            e.stopPropagation();
+            if (state.tickets < 1) return;
+
+            state.tickets--;
+            const newEmoji = drawEmoji();
+            const targetScene = animalSceneMap[newEmoji];
+            const existing = state.animals.find(a => a.emoji === newEmoji);
+
+            let kicker, name, maxed = false;
+
+            if (existing) {
+                state.dupeStreak++;
+                if (existing.level < 5) {
+                    existing.level++;
+                    kicker = '長大了';
+                    name = `${STAGE_NAME[existing.level]}`;
+                } else {
+                    kicker = '滿級了';
+                    name = '牠開心地蹭了蹭你';
+                    maxed = true;
+                }
+                highlightId = existing.id;
+            } else {
+                state.dupeStreak = 0;
+                addAnimal(newEmoji);
+                highlightId = state.animals[state.animals.length - 1].id;
+                kicker = '新朋友';
+                name = STAGE_NAME[1];
+            }
+
+            updateUI();
+            showReveal(newEmoji, kicker, name, targetScene, maxed);
         };
+
+        function showReveal(emoji, kicker, name, scene, maxed) {
+            const el = document.getElementById('reveal');
+            const stageEmoji = maxed ? emoji + '👑' : emoji;
+
+            document.getElementById('reveal-emoji').innerText = stageEmoji;
+            document.getElementById('reveal-kicker').innerText = kicker;
+            document.getElementById('reveal-name').innerText = `${emoji} ${name}`;
+
+            const where = document.getElementById('reveal-where');
+            let line = scene === state.currentScene ? '牠就在這裡' : `牠在【${getSceneName(scene)}】等你`;
+
+            if (scene !== state.currentScene) {
+                line += `<br><button class="reveal-go" onclick="event.stopPropagation(); goFind('${scene}')">去看看</button>`;
+            }
+
+            // 連續重複時，輕輕告訴你機率正在往你這邊靠
+            const stillMissing = availableAnimals.length - state.animals.length;
+            if (state.dupeStreak > 0 && stillMissing > 0) {
+                line += `<div class="reveal-soft">下次更容易遇見新朋友</div>`;
+            }
+
+            where.innerHTML = line;
+
+            // 重播動畫：移除再加回 class
+            el.classList.remove('show');
+            void el.offsetWidth;
+            el.classList.add('show');
+        }
+
+        function closeReveal() {
+            document.getElementById('reveal').classList.remove('show');
+            renderAnimals();
+        }
+
+        function goFind(scene) {
+            document.getElementById('reveal').classList.remove('show');
+            changeScene(scene, getSceneName(scene));
+        }
+
+        // 揭曉結束後牠還會亮著。若牠在別的場景，光暈會留到你走過去為止。
+        function applySpotlight() {
+            const container = document.getElementById('scene-container');
+            const el = highlightId !== null ? document.getElementById('animal-' + highlightId) : null;
+
+            clearTimeout(spotlightTimer);
+            if (!el) { container.classList.remove('spotlighting'); return; }
+
+            container.classList.add('spotlighting');
+            spotlightTimer = setTimeout(() => {
+                container.classList.remove('spotlighting');
+                highlightId = null;
+                renderAnimals();
+            }, 6000);
+        }
 
         function addAnimal(emoji) {
             const targetScene = animalSceneMap[emoji];

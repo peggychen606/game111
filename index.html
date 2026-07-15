@@ -20,7 +20,6 @@
             align-items: center;
             justify-content: center;
             z-index: 999;
-            /* 開頭畫面使用溫暖的房間水彩流動背景 */
             background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4);
             background-size: 300% 300%;
             animation: watercolorFlow 15s ease-in-out infinite;
@@ -32,7 +31,13 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             text-align: center;
-            animation: floatUp 1s ease-out forwards;
+            /* 修正：改成淡入動畫，不會再消失了 */
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .start-content h1 {
@@ -68,16 +73,15 @@
         }
 
         /* =========================================
-           遊戲主體容器 (預設隱藏，按 Start 後顯示)
+           遊戲主體容器
            ========================================= */
         #game-container {
-            display: none; /* 初始隱藏 */
+            display: none; 
             flex-direction: column;
             height: 100vh;
             width: 100vw;
         }
         
-        /* 主場景區 */
         #scene-container { 
             flex: 1; 
             position: relative; 
@@ -206,7 +210,6 @@
             .scene-btns button { font-size: 12px; padding: 8px 2px; }
             .action-btns { flex-direction: row; }
             
-            /* 手機版開頭畫面微調 */
             .start-content { padding: 40px 30px; width: 90%; }
             .start-content h1 { font-size: 32px; }
         }
@@ -223,7 +226,7 @@
         </div>
     </div>
 
-    <!-- 遊戲主體 (預設隱藏) -->
+    <!-- 遊戲主體 -->
     <div id="game-container">
         <div id="scene-container" class="bg-room">
             <div id="toast">系統提示</div>
@@ -292,7 +295,7 @@
             currentScene: 'room'
         };
         
-        let isGameStarted = false; // 記錄遊戲是否已經正式開始
+        let isGameStarted = false; 
 
         const animalData = {
             'room':  ['🐈', '🐕', '🐹', '🦜', '🐰', '🐭', '🦎'],
@@ -326,11 +329,9 @@
             }
             
             updateUI(); 
-            // 注意：這裡將 startTimer() 移除了，改到點擊 Start 後才開始
             changeScene(state.currentScene, getSceneName(state.currentScene), true);
         }
 
-        // --- 點擊 Game Start 按鈕觸發 ---
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';

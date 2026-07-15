@@ -82,7 +82,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 80px; height: 80px;
+            width: 100px; height: 100px;
         }
         .animal:hover { transform: scale(1.1); }
         
@@ -115,7 +115,6 @@
     <!-- 主場景 -->
     <div id="scene-container" class="bg-room">
         <div id="toast">系統提示</div>
-        <!-- 小動物會生成在這裡 -->
     </div>
 
     <!-- 側邊欄 -->
@@ -181,7 +180,7 @@
         let state = {
             tickets: 0,
             tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
-            animals: [], // { id, emoji, level, x, y, scene }
+            animals: [], 
             currentScene: 'room'
         };
 
@@ -190,15 +189,15 @@
         // --- 初始化 ---
         function init() {
             loadData();
-            updateUI();
-            renderAnimals();
-            startTimer();
-            changeScene(state.currentScene, getSceneName(state.currentScene), true);
             
-            // 如果一隻動物都沒有，送一隻初始的
+            // 修正順序：確保在畫出畫面之前，發放初始小動物
             if (state.animals.length === 0) {
                 addAnimal('🐰');
             }
+            
+            updateUI(); // 這裡會連同剛加入的初始動物一起儲存
+            startTimer();
+            changeScene(state.currentScene, getSceneName(state.currentScene), true);
         }
 
         // --- 本地儲存 (免登入) ---
@@ -215,24 +214,20 @@
         
         function clearData() {
             if(confirm("確定要重置所有進度嗎？動物都會消失喔！")) {
-                // 直接將狀態強制重置為最原始的空白狀態
+                // 強制覆寫狀態為空白
                 state = {
                     tickets: 0,
                     tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
                     animals: [], 
                     currentScene: 'room'
                 };
-                // 強制覆蓋掉瀏覽器裡的舊紀錄
                 localStorage.setItem('healing_game_data', JSON.stringify(state));
-                // 重新載入網頁
                 location.reload();
             }
-        }
         }
 
         // --- UI 更新 ---
         function updateUI() {
-            // 更新進度條
             document.getElementById('task-time-bar').value = state.tasks.time;
             document.getElementById('task-time-text').innerText = `${state.tasks.time}/300`;
             
@@ -245,7 +240,6 @@
             document.getElementById('task-scene-bar').value = state.tasks.scene;
             document.getElementById('task-scene-text').innerText = `${state.tasks.scene}/1`;
 
-            // 更新抽獎券
             document.getElementById('ticket-count').innerText = state.tickets;
             document.getElementById('btn-gacha').disabled = state.tickets < 1;
             
@@ -264,7 +258,6 @@
             if (state.tasks[type] < max) {
                 state.tasks[type]++;
                 if (state.tasks[type] >= max) {
-                    // 達成任務，給予抽獎券並重置該任務
                     state.tickets++;
                     state.tasks[type] = 0;
                     showToast('🎉 完成任務！獲得 1 張抽獎券');
@@ -275,7 +268,7 @@
 
         function startTimer() {
             setInterval(() => {
-                progressTask('time', 300); // 300秒 = 5分鐘
+                progressTask('time', 300);
             }, 1000);
         }
 
@@ -284,7 +277,7 @@
             state.currentScene = sceneId;
             const container = document.getElementById('scene-container');
             container.className = `bg-${sceneId}`;
-            renderAnimals(); // 只顯示當前場景的動物
+            renderAnimals(); 
             
             if (!skipTask) {
                 progressTask('scene', 1);
@@ -305,7 +298,6 @@
             progressTask('feed', 1);
             showToast('🍎 餵食成功！小動物很開心');
             
-            // 讓場景裡的動物跳一下
             document.querySelectorAll('.animal').forEach(el => {
                 el.style.transform = 'translateY(-20px)';
                 setTimeout(() => el.style.transform = '', 300);
@@ -315,13 +307,12 @@
         // --- 動物系統 ---
         function renderAnimals() {
             const container = document.getElementById('scene-container');
-            // 清除現有動物實體 (保留 toast)
             Array.from(container.children).forEach(child => {
                 if(child.id !== 'toast') child.remove();
             });
 
-            state.animals.forEach((animal, index) => {
-                if (animal.scene !== state.currentScene) return; // 不在目前場景就不畫
+            state.animals.forEach((animal) => {
+                if (animal.scene !== state.currentScene) return; 
 
                 const el = document.createElement('div');
                 el.className = 'animal';
@@ -329,27 +320,36 @@
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
-                // 根據等級調整外觀 (驚喜合併機制)
+                // --- 5 等級外觀系統 ---
                 if (animal.level === 2) {
-                    el.style.fontSize = '60px'; // 巨大化
-                } else if (animal.level >= 3) {
-                    el.style.fontSize = '70px';
-                    el.innerText = animal.emoji + '✨'; // 稀有特效
+                    el.style.fontSize = '55px'; // 稍微變大
+                } else if (animal.level === 3) {
+                    el.style.fontSize = '70px'; // 巨大化
+                } else if (animal.level === 4) {
+                    el.style.fontSize = '85px';
+                    el.innerText = animal.emoji + '✨'; // 閃耀特效
+                } else if (animal.level >= 5) {
+                    el.style.fontSize = '100px';
+                    el.innerText = animal.emoji + '👑'; // 終極皇冠
+                    el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))'; // 發光陰影
                 }
 
-                // 撫摸互動
+                // --- 5 等級互動系統 ---
                 el.onclick = (e) => {
                     progressTask('pet', 3);
                     createHeart(e.clientX, e.clientY);
                     
-                    // 動作解鎖：等級高於1會翻滾
-                    if(animal.level > 1) {
+                    if (animal.level >= 4) {
+                        // 等級 4 以上：開心跳躍加翻滾
+                        el.style.transform = 'translateY(-40px) rotate(360deg)';
+                        setTimeout(() => el.style.transform = '', 500);
+                    } else if (animal.level >= 2) {
+                        // 等級 2~3：原地翻滾
                         el.style.transform = 'rotate(360deg)';
                         setTimeout(() => el.style.transform = '', 500);
                     }
                 };
 
-                // 簡單的隨機微動
                 setInterval(() => {
                     const moveX = (Math.random() - 0.5) * 5;
                     const moveY = (Math.random() - 0.5) * 5;
@@ -375,15 +375,20 @@
             if (state.tickets >= 1) {
                 state.tickets--;
                 
-                // 隨機抽一隻
                 const newEmoji = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
                 
-                // 檢查是否已擁有並合併
+                // 檢查是否已擁有並合併 (5等級系統)
                 const existing = state.animals.find(a => a.emoji === newEmoji);
                 if (existing) {
-                    existing.level++;
-                    if(existing.level === 2) showToast(`✨ 驚喜！重複的 ${newEmoji} 合併【巨大化】了！`);
-                    if(existing.level >= 3) showToast(`🌟 奇蹟！${newEmoji} 解鎖了【閃耀特效】！`);
+                    if (existing.level < 5) {
+                        existing.level++;
+                        if(existing.level === 2) showToast(`🌱 驚喜！重複的 ${newEmoji} 稍微【長大】了！`);
+                        if(existing.level === 3) showToast(`✨ 哇！${newEmoji} 成功【巨大化】了！`);
+                        if(existing.level === 4) showToast(`🌟 奇蹟！${newEmoji} 解鎖了【閃耀特效】！`);
+                        if(existing.level === 5) showToast(`👑 太神了！${newEmoji} 達到【終極王者】型態！`);
+                    } else {
+                        showToast(`💖 你的 ${newEmoji} 已經滿級了，牠開心地蹭了蹭你！`);
+                    }
                 } else {
                     addAnimal(newEmoji);
                     showToast(`🎁 恭喜抽到新朋友：${newEmoji}！`);
@@ -400,7 +405,6 @@
                 emoji: emoji,
                 level: 1,
                 scene: state.currentScene,
-                // 隨機位置 (避免太靠邊緣)
                 x: 10 + Math.random() * 60,
                 y: 20 + Math.random() * 60 
             });

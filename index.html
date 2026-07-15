@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>療癒小動物 - 水彩風紓壓空間</title>
+    <title>療癒小動物 - 實境紓壓空間</title>
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
         
@@ -15,31 +15,30 @@
             flex: 1; 
             position: relative; 
             overflow: hidden;
-            background-size: 300% 300%;
-            animation: watercolorFlow 15s ease-in-out infinite;
-        }
-        
-        @keyframes watercolorFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            /* 針對真實圖片的設定：填滿畫面、置中、不重複 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 切換場景時的淡入淡出效果 */
+            transition: background-image 0.8s ease-in-out;
         }
 
-        #scene-container.bg-room { background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); }
-        #scene-container.bg-grass { background-image: linear-gradient(120deg, #e8f5e9, #c8e6c9, #dcedc8, #f1f8e9); }
-        #scene-container.bg-ocean { background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); }
+        /* 替換為真實圖片的網址 (可自行替換成自己的圖檔，例如 url('room.jpg')) */
+        #scene-container.bg-room { background-image: url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop'); }
+        #scene-container.bg-grass { background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop'); }
+        #scene-container.bg-ocean { background-image: url('https://images.unsplash.com/photo-1582967788606-a171c1080cb0?q=80&w=1920&auto=format&fit=crop'); }
 
         /* 底部控制面板區 */
         #bottom-bar { 
             width: 100%; 
-            background: rgba(255, 255, 255, 0.85); 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05); 
+            background: rgba(255, 255, 255, 0.95); 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1); 
             padding: 15px 20px; 
             display: flex; 
             flex-direction: row; 
             gap: 15px;
             z-index: 10;
-            overflow-x: auto; /* 電腦版若視窗太小可橫向滑動 */
+            overflow-x: auto; 
             align-items: stretch;
         }
 
@@ -74,7 +73,7 @@
             padding: 15px; 
             border-radius: 12px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            flex: 1; /* 平均分配底部空間 */
+            flex: 1; 
             min-width: 220px;
         }
 
@@ -95,23 +94,22 @@
         .scene-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .action-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
 
-        /* 小動物實體 - 加入 left 與 top 的緩動效果，實現「走來走去」 */
         .animal {
             position: absolute;
             font-size: 40px;
             cursor: pointer;
             user-select: none;
-            /* 讓移動變得很緩慢柔和，點擊特效保持輕快 */
             transition: left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100px; height: 100px;
             -webkit-tap-highlight-color: transparent; 
+            /* 在真實圖片上加上一點點陰影，讓小動物更立體清楚 */
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
         }
         .animal:hover { transform: scale(1.1) !important; }
         
-        /* 互動特效 (愛心與蘋果) */
         .particle {
             position: absolute; font-size: 20px;
             animation: floatUp 1s ease-out forwards; pointer-events: none;
@@ -124,16 +122,16 @@
 
         #toast {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
             border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
             white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* 手機版響應式設計 */
         @media (max-width: 768px) {
             #scene-container { height: 50vh; flex: none; }
             #bottom-bar { 
-                flex-direction: column; /* 手機上改為垂直堆疊 */
+                flex-direction: column; 
                 max-height: 50vh; 
                 overflow-y: auto; 
                 border-radius: 20px 20px 0 0;
@@ -263,7 +261,6 @@
         
         function clearData() {
             if(confirm("確定要重置所有進度嗎？動物都會消失喔！")) {
-                // 清除所有走路的計時器
                 if (window.animalIntervals) {
                     window.animalIntervals.forEach(clearInterval);
                 }
@@ -343,7 +340,6 @@
             return map[id];
         }
 
-        // --- 更新為單次隨機餵食一隻小動物 ---
         function feedOneAnimal() {
             const animalsInScene = state.animals.filter(a => a.scene === state.currentScene);
             if (animalsInScene.length === 0) {
@@ -353,18 +349,14 @@
             
             progressTask('feed', 5);
             
-            // 從當前場景隨機挑選一隻幸運動物
             const luckyAnimal = animalsInScene[Math.floor(Math.random() * animalsInScene.length)];
             const el = document.getElementById('animal-' + luckyAnimal.id);
             
             if(el) {
                 showToast(`🍎 餵食成功！${luckyAnimal.emoji} 吃得很開心`);
-                
-                // 觸發跳躍特效
                 el.style.transform = 'translateY(-30px)';
                 setTimeout(() => el.style.transform = '', 300);
                 
-                // 產生小蘋果飄浮特效
                 const rect = el.getBoundingClientRect();
                 createParticle(rect.left + rect.width / 2, rect.top, '🍎');
             }
@@ -373,12 +365,10 @@
         function renderAnimals() {
             const container = document.getElementById('scene-container');
             
-            // 清除舊的 DOM 元素
             Array.from(container.children).forEach(child => {
                 if(child.id !== 'toast') child.remove();
             });
 
-            // 清除舊的移動計時器，避免切換場景後效能浪費
             if (window.animalIntervals) {
                 window.animalIntervals.forEach(clearInterval);
             }
@@ -389,25 +379,25 @@
 
                 const el = document.createElement('div');
                 el.className = 'animal';
-                el.id = 'animal-' + animal.id; // 綁定 ID 以便餵食時尋找
+                el.id = 'animal-' + animal.id; 
                 el.innerText = animal.emoji;
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
                 if (animal.level === 2) {
-                    el.style.fontSize = '55px'; // 小朋友
+                    el.style.fontSize = '55px'; 
                 } else if (animal.level === 3) {
-                    el.style.fontSize = '70px'; // 成年
+                    el.style.fontSize = '70px'; 
                 } else if (animal.level === 4) {
                     el.style.fontSize = '85px';
-                    el.innerText = animal.emoji + '✨'; // 得到星星
+                    el.innerText = animal.emoji + '✨'; 
                 } else if (animal.level >= 5) {
                     el.style.fontSize = '100px';
-                    el.innerText = animal.emoji + '👑'; // 得到皇冠
-                    el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))';
+                    el.innerText = animal.emoji + '👑'; 
+                    /* 5級動物保留發光效果，覆蓋掉基礎黑影 */
+                    el.style.filter = 'drop-shadow(0px 0px 15px rgba(255, 215, 0, 1))';
                 }
 
-                // 點擊撫摸特效
                 el.onclick = (e) => {
                     progressTask('pet', 3);
                     createParticle(e.clientX, e.clientY, '❤️');
@@ -421,26 +411,22 @@
                     }
                 };
 
-                // --- 走來走去系統：定期計算新座標 ---
                 let walkInterval = setInterval(() => {
-                    // 每次隨機移動 -15% 到 +15% 的距離
                     let dx = (Math.random() - 0.5) * 30; 
                     let dy = (Math.random() - 0.5) * 20; 
                     
-                    // 確保不會走出螢幕邊界 (設定在 5% 到 85% 之間)
                     animal.x = Math.max(5, Math.min(85, animal.x + dx));
                     animal.y = Math.max(5, Math.min(80, animal.y + dy));
                     
                     el.style.left = animal.x + '%';
                     el.style.top = animal.y + '%';
-                }, 3000 + Math.random() * 3000); // 每隻動物移動的頻率不一 (3~6秒)
+                }, 3000 + Math.random() * 3000); 
                 
                 window.animalIntervals.push(walkInterval);
                 container.appendChild(el);
             });
         }
 
-        // 共用的粒子特效函數 (支援愛心或蘋果)
         function createParticle(x, y, emoji = '❤️') {
             const particle = document.createElement('div');
             particle.innerText = emoji;

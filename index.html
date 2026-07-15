@@ -103,7 +103,7 @@
             width: 100%; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);
             box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
             padding: 10px 18px; display: flex; flex-direction: row; gap: 14px;
-            z-index: 10; align-items: center; flex-shrink: 0;
+            z-index: 10; align-items: center; flex-shrink: 0; position: relative;
         }
 
         h2, h3 { margin: 0; color: #5d5d5d; }
@@ -111,41 +111,65 @@
         button { border: none; border-radius: 10px; background: transparent; color: #5d5d5d; cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: bold; }
         button:focus-visible { outline: 3px solid #b2d8d8; outline-offset: 2px; }
 
-        /* ---- 場景切換：主角，用分段控制項 ---- */
-        .scene-switch { display: flex; gap: 4px; background: #f4f0ea; padding: 4px; border-radius: 14px; }
+        /* ---- 場景切換：回到工具列，用分段控制項 ---- */
+        .scene-switch {
+            display: flex; gap: 4px;
+            background: #f4f0ea; padding: 4px; border-radius: 14px;
+        }
         .scene-chip {
             display: flex; align-items: center; gap: 7px;
-            padding: 9px 14px; border-radius: 10px; color: #8a8078;
-            white-space: nowrap; position: relative;
+            padding: 10px 15px; border-radius: 10px; color: #8a8078;
+            white-space: nowrap; font-size: 13px;
         }
-        .scene-chip:hover { background: rgba(255,255,255,0.6); color: #5d5d5d; }
+        .scene-chip:hover { background: rgba(255,255,255,0.65); color: #5d5d5d; }
         .scene-chip.active { background: #fff; color: #5d5d5d; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-        .chip-emoji { font-size: 18px; line-height: 1; }
+        .chip-emoji { font-size: 17px; line-height: 1; }
         .chip-count {
             font-size: 11px; min-width: 18px; height: 18px; line-height: 18px;
-            border-radius: 9px; background: #e8e2d9; color: #8a8078; padding: 0 5px;
+            border-radius: 9px; background: #e5ded4; color: #8a8078; padding: 0 5px;
         }
         .scene-chip.active .chip-count { background: #b2d8d8; color: #fff; }
         .chip-count.empty { opacity: 0.35; }
 
-        /* ---- 任務：退成一排細記號 ---- */
-        .task-strip { display: flex; gap: 14px; align-items: center; margin-left: 4px; }
-        .mini-task { display: flex; flex-direction: column; gap: 5px; align-items: center; cursor: default; }
-        .mini-task .mt-icon { font-size: 15px; line-height: 1; opacity: 0.75; transition: 0.3s; }
-        .mini-bar { width: 42px; height: 4px; border-radius: 2px; background: #eee9e2; overflow: hidden; }
-        .mini-bar i { display: block; height: 100%; width: 0; background: #b2d8d8; border-radius: 2px; transition: width 0.4s ease-out; }
-        .mini-task.done .mt-icon { opacity: 1; transform: scale(1.25); }
+        /* ---- 任務：收進藥丸，想看才看 ---- */
+        .btn-tasks {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 16px; border-radius: 10px; background: #f4f0ea; color: #6b625a;
+        }
+        .btn-tasks:hover { background: #ece6dd; }
+        .btn-tasks.open { background: #e8e2d9; }
+
+        .task-anchor { position: relative; }
+
+        .task-pop {
+            display: none; position: absolute; left: 0; bottom: calc(100% + 10px);
+            background: #fff; border-radius: 14px; padding: 16px 18px; width: 240px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.14); z-index: 30;
+        }
+        .task-pop.open { display: block; }
+        .task-pop h4 { margin: 0 0 12px; font-size: 13px; color: #a89e94; font-weight: normal; letter-spacing: 1px; }
+        .task-row { margin-bottom: 13px; }
+        .task-row:last-child { margin-bottom: 0; }
+        .task-row .tr-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-size: 13px; color: #5d5d5d; margin-bottom: 6px;
+        }
+        .task-row .tr-num { font-size: 12px; color: #b5aca3; }
+        .tr-bar { height: 5px; border-radius: 3px; background: #f0ece6; overflow: hidden; }
+        .tr-bar i { display: block; height: 100%; width: 0; background: #b2d8d8; border-radius: 3px; transition: width 0.4s ease-out; }
+        .task-row.done .tr-num { color: #8fbfbf; }
+        .task-row.done .tr-bar i { background: #8fbfbf; }
 
         .bar-spacer { flex: 1; min-width: 8px; }
 
         /* ---- 動作區 ---- */
         .bar-actions { display: flex; gap: 8px; align-items: center; position: relative; }
 
-        .btn-feed { background: #ffe9e0; color: #d84315; padding: 11px 16px; }
+        .btn-feed { background: #ffe9e0; color: #d84315; padding: 12px 18px; }
         .btn-feed:hover { background: #ffdccd; }
 
         .gacha-btn {
-            background: #ffb7b2; color: white; padding: 11px 18px;
+            background: #ffb7b2; color: white; padding: 12px 20px;
             display: flex; align-items: center; gap: 8px;
             box-shadow: 0 3px 10px rgba(255, 183, 178, 0.45);
         }
@@ -156,7 +180,7 @@
         }
         .gacha-btn:disabled .tk { background: rgba(0,0,0,0.05); }
 
-        .btn-icon { padding: 11px 13px; background: #f4f0ea; font-size: 16px; }
+        .btn-icon { padding: 12px 15px; background: #f4f0ea; font-size: 16px; }
         .btn-icon:hover { background: #e8e2d9; }
 
         .more-menu {
@@ -244,7 +268,7 @@
         }
 
         #toast {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: white; padding: 10px 20px;
             border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
@@ -286,18 +310,21 @@
         .btn-back { background: #e0d4c8; margin-bottom: 15px; font-size: 14px; padding: 8px 20px; }
 
         @media (max-width: 768px) {
-            /* 場景保留最大面積，工具列只佔兩小行 */
-            #bottom-bar {
-                flex-wrap: wrap; gap: 10px; padding: 10px 12px 14px;
-                border-radius: 18px 18px 0 0;
-            }
+            /* 窄螢幕上場景獨佔一排，工具排在下面 */
+            #bottom-bar { flex-wrap: wrap; gap: 10px; padding: 10px 12px 14px; border-radius: 18px 18px 0 0; }
+
             .scene-switch { flex: 1 1 100%; order: 1; }
-            .scene-chip { flex: 1; justify-content: center; padding: 10px 4px; font-size: 13px; }
-            .task-strip { order: 2; gap: 10px; margin-left: 0; }
-            .mini-bar { width: 32px; }
+            .scene-chip { flex: 1; justify-content: center; gap: 5px; padding: 11px 4px; font-size: 12px; }
+            .chip-emoji { font-size: 15px; }
+
+            .task-anchor { order: 2; }
+            .btn-tasks { padding: 12px 13px; font-size: 13px; }
+            .task-pop { width: calc(100vw - 44px); max-width: 260px; }
+
             .bar-spacer { display: none; }
             .bar-actions { order: 3; margin-left: auto; }
-            .btn-feed, .gacha-btn { padding: 10px 12px; font-size: 13px; }
+            .btn-feed, .gacha-btn { padding: 12px 13px; font-size: 13px; }
+
             .start-content { padding: 40px 30px; width: 90%; }
             .start-content h1 { font-size: 32px; }
             .marquee-content span { font-size: 38px; margin: 0 15px; }
@@ -360,18 +387,29 @@
                 </button>
             </div>
 
-            <div class="task-strip" id="task-strip">
-                <div class="mini-task" id="mt-time" title="陪伴 5 分鐘">
-                    <span class="mt-icon">⏳</span><div class="mini-bar"><i></i></div>
+            <div class="task-anchor">
+                <button class="btn-tasks" id="btn-tasks" onclick="toggleTasks(event)" aria-haspopup="true">
+                    🌱 任務
+                </button>
+
+                <div class="task-pop" id="task-pop">
+                <h4>紓壓任務</h4>
+                <div class="task-row" id="tr-time">
+                    <div class="tr-head"><span>陪伴 5 分鐘</span><span class="tr-num"></span></div>
+                    <div class="tr-bar"><i></i></div>
                 </div>
-                <div class="mini-task" id="mt-pet" title="撫摸小動物 3 次">
-                    <span class="mt-icon">🤍</span><div class="mini-bar"><i></i></div>
+                <div class="task-row" id="tr-pet">
+                    <div class="tr-head"><span>撫摸小動物</span><span class="tr-num"></span></div>
+                    <div class="tr-bar"><i></i></div>
                 </div>
-                <div class="mini-task" id="mt-feed" title="餵食 5 次">
-                    <span class="mt-icon">🍎</span><div class="mini-bar"><i></i></div>
+                <div class="task-row" id="tr-feed">
+                    <div class="tr-head"><span>餵食</span><span class="tr-num"></span></div>
+                    <div class="tr-bar"><i></i></div>
                 </div>
-                <div class="mini-task" id="mt-scene" title="切換場景 3 次">
-                    <span class="mt-icon">🧭</span><div class="mini-bar"><i></i></div>
+                    <div class="task-row" id="tr-scene">
+                        <div class="tr-head"><span>切換場景</span><span class="tr-num"></span></div>
+                        <div class="tr-bar"><i></i></div>
+                    </div>
                 </div>
             </div>
 
@@ -526,16 +564,14 @@
         }
 
         const TASK_MAX = { time: 300, pet: 3, feed: 5, scene: 3 };
-        const TASK_LABEL = { time: '陪伴 5 分鐘', pet: '撫摸小動物', feed: '餵食', scene: '切換場景' };
 
         function updateUI() {
-            // 任務：只用一條細線表示比例，數字放在 tooltip 裡
             for (const key in TASK_MAX) {
-                const el = document.getElementById('mt-' + key);
+                const row = document.getElementById('tr-' + key);
                 const pct = (state.tasks[key] / TASK_MAX[key]) * 100;
-                el.querySelector('i').style.width = pct + '%';
-                el.classList.toggle('done', pct >= 100);
-                el.title = `${TASK_LABEL[key]}　${state.tasks[key]}/${TASK_MAX[key]}`;
+                row.querySelector('i').style.width = pct + '%';
+                row.querySelector('.tr-num').innerText = `${state.tasks[key]} / ${TASK_MAX[key]}`;
+                row.classList.toggle('done', pct >= 100);
             }
 
             document.getElementById('ticket-count').innerText = state.tickets;
@@ -559,11 +595,25 @@
 
         function toggleMenu(e) {
             e.stopPropagation();
+            closeTasks();
             document.getElementById('more-menu').classList.toggle('open');
         }
         function closeMenu() { document.getElementById('more-menu').classList.remove('open'); }
-        document.addEventListener('click', closeMenu);
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+        function toggleTasks(e) {
+            e.stopPropagation();
+            closeMenu();
+            const open = document.getElementById('task-pop').classList.toggle('open');
+            document.getElementById('btn-tasks').classList.toggle('open', open);
+        }
+        function closeTasks() {
+            document.getElementById('task-pop').classList.remove('open');
+            document.getElementById('btn-tasks').classList.remove('open');
+        }
+
+        function closePopovers() { closeMenu(); closeTasks(); }
+        document.addEventListener('click', closePopovers);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopovers(); });
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -618,7 +668,8 @@
 
         function renderAnimals() {
             const container = document.getElementById('scene-container');
-            Array.from(container.children).forEach(child => { if(child.id !== 'toast') child.remove(); });
+            // 只清動物。場景裡還住著 toast 和揭曉畫面，不能一起掃掉。
+            container.querySelectorAll('.animal').forEach(el => el.remove());
 
             if (window.animalIntervals) window.animalIntervals.forEach(clearInterval);
             window.animalIntervals = [];

@@ -7,28 +7,22 @@
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
         
-        /* 佈局改為上下排列，面板在下方 */
         body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #faf8f5; }
         
-        /* 主場景區 - 佔滿上半部 */
         #scene-container { 
             flex: 1; 
             position: relative; 
             overflow: hidden;
-            /* 針對真實圖片的設定：填滿畫面、置中、不重複 */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            /* 切換場景時的淡入淡出效果 */
             transition: background-image 0.8s ease-in-out;
         }
 
-        /* 替換為真實圖片的網址 (可自行替換成自己的圖檔，例如 url('room.jpg')) */
         #scene-container.bg-room { background-image: url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop'); }
         #scene-container.bg-grass { background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop'); }
         #scene-container.bg-ocean { background-image: url('https://images.unsplash.com/photo-1582967788606-a171c1080cb0?q=80&w=1920&auto=format&fit=crop'); }
 
-        /* 底部控制面板區 */
         #bottom-bar { 
             width: 100%; 
             background: rgba(255, 255, 255, 0.95); 
@@ -105,7 +99,6 @@
             justify-content: center;
             width: 100px; height: 100px;
             -webkit-tap-highlight-color: transparent; 
-            /* 在真實圖片上加上一點點陰影，讓小動物更立體清楚 */
             filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
         }
         .animal:hover { transform: scale(1.1) !important; }
@@ -148,7 +141,6 @@
         <div id="toast">系統提示</div>
     </div>
 
-    <!-- 底部控制面板 -->
     <div id="bottom-bar">
         <div class="intro-panel">
             <h2>療癒動物園</h2>
@@ -381,6 +373,9 @@
                 el.className = 'animal';
                 el.id = 'animal-' + animal.id; 
                 el.innerText = animal.emoji;
+                
+                // 為了避免一進場出現從 0,0 飛過來的動畫，先將 transition 關閉
+                el.style.transition = 'none';
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
@@ -394,7 +389,6 @@
                 } else if (animal.level >= 5) {
                     el.style.fontSize = '100px';
                     el.innerText = animal.emoji + '👑'; 
-                    /* 5級動物保留發光效果，覆蓋掉基礎黑影 */
                     el.style.filter = 'drop-shadow(0px 0px 15px rgba(255, 215, 0, 1))';
                 }
 
@@ -411,7 +405,10 @@
                     }
                 };
 
-                let walkInterval = setInterval(() => {
+                container.appendChild(el);
+
+                // 獨立出散步函數
+                const startWalking = () => {
                     let dx = (Math.random() - 0.5) * 30; 
                     let dy = (Math.random() - 0.5) * 20; 
                     
@@ -420,10 +417,16 @@
                     
                     el.style.left = animal.x + '%';
                     el.style.top = animal.y + '%';
-                }, 3000 + Math.random() * 3000); 
-                
+                };
+
+                // 給予 50 毫秒極短延遲，讓瀏覽器確認初始位置後，把動畫效果開回來，並馬上走出第一步
+                setTimeout(() => {
+                    el.style.transition = 'left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    startWalking();
+                }, 50);
+
+                let walkInterval = setInterval(startWalking, 3000 + Math.random() * 3000); 
                 window.animalIntervals.push(walkInterval);
-                container.appendChild(el);
             });
         }
 

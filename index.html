@@ -101,10 +101,39 @@
         }
 
         /* 水彩風格背景設定 */
-        .bg-room { background-color: #fff3e0; }
-        .bg-grass { background-color: #e8f5e9; }
-        .bg-ice { background-color: #e0f7fa; }
-        .bg-ocean { background-color: #e3f2fd; }
+        /* =========================================
+           會動的水彩風格背景設定 (流動漸層動畫)
+           ========================================= */
+        
+        /* 定義水彩緩慢流動的動畫節奏 */
+        @keyframes watercolorFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 將背景放大並套用動畫 */
+        .bg-room, .bg-grass, .bg-ice, .bg-ocean {
+            background-size: 300% 300%;
+            animation: watercolorFlow 15s ease-in-out infinite;
+        }
+
+        /* 🏠 房間：溫暖的橘黃色晨光流動 */
+        .bg-room { 
+            background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); 
+        }
+        /* 🌿 草地：微風吹拂的清爽綠意 */
+        .bg-grass { 
+            background-image: linear-gradient(120deg, #e8f5e9, #c8e6c9, #dcedc8, #f1f8e9); 
+        }
+        /* ❄️ 冰原：極光與冰雪交織的冷色調 */
+        .bg-ice { 
+            background-image: linear-gradient(120deg, #e0f7fa, #b2ebf2, #e3f2fd, #e0f2f1); 
+        }
+        /* 🌊 海洋：波光粼粼的深淺水流 */
+        .bg-ocean { 
+            background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); 
+        }
 
         /* 系統提示 */
         #toast {

@@ -31,8 +31,8 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             text-align: center;
-            /* 修正：改成淡入動畫，不會再消失了 */
             animation: fadeIn 0.8s ease-out forwards;
+            z-index: 10;
         }
 
         @keyframes fadeIn {
@@ -72,6 +72,46 @@
             box-shadow: 0 8px 25px rgba(255, 183, 178, 0.6);
         }
 
+        /* --- 開頭畫面底部：小動物走路跑馬燈特效 --- */
+        .marquee {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            z-index: 5;
+        }
+
+        .marquee-content {
+            display: flex;
+            /* 調整秒數可以改變走路速度，目前設為25秒走完一輪 */
+            animation: scrollLeft 25s linear infinite;
+        }
+
+        .marquee-content span {
+            font-size: 50px;
+            margin: 0 25px;
+            /* 上下彈跳動畫，製造走路的感覺 */
+            animation: bob 0.8s ease-in-out infinite alternate;
+            filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.1));
+            user-select: none;
+        }
+
+        /* 讓相鄰的動物彈跳節奏錯開，看起來更自然 */
+        .marquee-content span:nth-child(even) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); } /* 向左推移100% */
+        }
+
+        @keyframes bob {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
+
         /* =========================================
            遊戲主體容器
            ========================================= */
@@ -89,12 +129,6 @@
             background-size: 300% 300%;
             animation: watercolorFlow 15s ease-in-out infinite;
             transition: background-image 0.8s ease-in-out;
-        }
-
-        @keyframes watercolorFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         #scene-container.bg-room { background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); }
@@ -185,10 +219,6 @@
             animation: floatUp 1s ease-out forwards; pointer-events: none;
             z-index: 50;
         }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
-        }
 
         #toast {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
@@ -212,6 +242,9 @@
             
             .start-content { padding: 40px 30px; width: 90%; }
             .start-content h1 { font-size: 32px; }
+            
+            /* 手機版跑馬燈動物變小一點 */
+            .marquee-content span { font-size: 40px; margin: 0 15px; }
         }
     </style>
 </head>
@@ -223,6 +256,18 @@
             <h1>療癒動物園</h1>
             <p>一個沒有壓力的水彩風空間</p>
             <button class="btn-start" onclick="startGame()">Game Start</button>
+        </div>
+        
+        <!-- 會動的動物列隊跑馬燈 -->
+        <div class="marquee">
+            <!-- 第一組 -->
+            <div class="marquee-content">
+                <span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span><span>🐏</span><span>🐥</span><span>🦆</span><span>🐷</span>
+            </div>
+            <!-- 第二組 (為了讓滾動時無縫接軌) -->
+            <div class="marquee-content">
+                <span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span><span>🐏</span><span>🐥</span><span>🦆</span><span>🐷</span>
+            </div>
         </div>
     </div>
 

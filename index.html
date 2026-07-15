@@ -2,7 +2,6 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 加入 maximum-scale=1.0, user-scalable=no 防止手機連點時畫面跟著放大縮小 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>療癒小動物 - 水彩風紓壓空間</title>
     <style>
@@ -14,12 +13,12 @@
             flex: 1; 
             position: relative; 
             transition: background 1s ease-in-out;
-            background-color: #fff3e0; /* 預設房間色 */
+            background-color: #fff3e0; 
             background-image: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.4) 100%);
             overflow: hidden;
         }
         
-        /* 側邊欄區 (電腦版預設樣式) */
+        /* 側邊欄區 */
         #sidebar { 
             width: 320px; 
             background: rgba(255, 255, 255, 0.85); 
@@ -29,7 +28,7 @@
             flex-direction: column; 
             gap: 20px;
             z-index: 10;
-            overflow-y: auto; /* 確保內容過長時可以滑動 */
+            overflow-y: auto; 
         }
 
         h2, h3 { margin: 0; color: #5d5d5d; }
@@ -86,7 +85,6 @@
             align-items: center;
             justify-content: center;
             width: 100px; height: 100px;
-            /* 修正手機點擊時可能出現的藍色反白方塊 */
             -webkit-tap-highlight-color: transparent; 
         }
         .animal:hover { transform: scale(1.1); }
@@ -116,47 +114,27 @@
             white-space: nowrap;
         }
 
-        /* =========================================
-           手機版 RWD 響應式設計 (螢幕寬度小於 768px 時觸發)
-           ========================================= */
+        /* 手機版 RWD 響應式設計 */
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; /* 改為上下排列 */
-            }
-            #scene-container { 
-                flex: none; 
-                height: 50vh; /* 上半部 50% 留給場景 */
-            }
+            body { flex-direction: column; }
+            #scene-container { flex: none; height: 50vh; }
             #sidebar { 
-                width: 100%; 
-                flex: 1; /* 下半部填滿留給面板 */
-                border-radius: 20px 20px 0 0; /* 頂部加入圓角，類似 App 抽屜 */
-                padding: 15px;
-                box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-                gap: 15px;
+                width: 100%; flex: 1; 
+                border-radius: 20px 20px 0 0; padding: 15px;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.05); gap: 15px;
             }
-            .scene-btns { 
-                grid-template-columns: repeat(4, 1fr); /* 場景按鈕橫排 4 個 */
-            }
-            .scene-btns button {
-                font-size: 12px; /* 字體微調避免跑版 */
-                padding: 8px 2px;
-            }
-            #toast {
-                top: 10px; /* 手機版提示訊息稍微往上挪 */
-                font-size: 14px;
-            }
+            .scene-btns { grid-template-columns: repeat(4, 1fr); }
+            .scene-btns button { font-size: 12px; padding: 8px 2px; }
+            #toast { top: 10px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 主場景 -->
     <div id="scene-container" class="bg-room">
         <div id="toast">系統提示</div>
     </div>
 
-    <!-- 側邊欄 -->
     <div id="sidebar">
         <div>
             <h2>療癒動物園</h2>
@@ -208,7 +186,7 @@
         <div class="panel">
             <h3>🍎 互動</h3>
             <div class="action-btns">
-                <button onclick="feedAnimals()" style="flex:1;">餵食所有動物</button>
+                <button onclick="feedAnimals()" style="flex:1;">餵食當前場景</button>
                 <button onclick="clearData()" style="flex:1; background:#f5f5f5; font-size:12px;">清除進度</button>
             </div>
         </div>
@@ -223,13 +201,29 @@
             currentScene: 'room'
         };
 
-        const availableAnimals = ['🐰', '🐈', '🐧', '🐢', '🐼', '🦊', '🦦', '🦭'];
+        // --- 30種動物與其專屬生存環境字典 ---
+        const animalData = {
+            'room':  ['🐈', '🐕', '🐹', '🦜', '🐰', '🐭', '🦎'],
+            'grass': ['🦊', '🐼', '🐨', '🦔', '🦘', '🐎', '🐑', '🦒'],
+            'ice':   ['🐻‍❄️', '🐧', '🦭', '🐺', '🦉', '🦌', '🐐'],
+            'ocean': ['🐳', '🐬', '🦈', '🐙', '🦀', '🦞', '🐡', '🐢']
+        };
+
+        // 建立動物反向查詢表 (用來知道動物屬於哪個場景) 以及總名單
+        const animalSceneMap = {};
+        const availableAnimals = [];
+        for (let scene in animalData) {
+            animalData[scene].forEach(emoji => {
+                animalSceneMap[emoji] = scene;
+                availableAnimals.push(emoji);
+            });
+        }
         
         // --- 初始化 ---
         function init() {
             loadData();
             
-            // 確保在畫出畫面之前，發放初始小動物
+            // 確保在畫出畫面之前，發放初始小動物 (兔子預設在房間)
             if (state.animals.length === 0) {
                 addAnimal('🐰');
             }
@@ -253,7 +247,6 @@
         
         function clearData() {
             if(confirm("確定要重置所有進度嗎？動物都會消失喔！")) {
-                // 強制覆寫狀態為空白
                 state = {
                     tickets: 0,
                     tasks: { time: 0, pet: 0, feed: 0, scene: 0 },
@@ -289,7 +282,7 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.opacity = 1;
-            setTimeout(() => toast.style.opacity = 0, 2000);
+            setTimeout(() => toast.style.opacity = 0, 2500);
         }
 
         // --- 任務系統 ---
@@ -331,11 +324,11 @@
 
         function feedAnimals() {
             if (state.animals.filter(a => a.scene === state.currentScene).length === 0) {
-                showToast('這個場景目前沒有小動物喔！');
+                showToast('這個場景目前沒有小動物喔！去其他地方找找吧。');
                 return;
             }
             progressTask('feed', 1);
-            showToast('🍎 餵食成功！小動物很開心');
+            showToast('🍎 餵食成功！當前場景的小動物很開心');
             
             document.querySelectorAll('.animal').forEach(el => {
                 el.style.transform = 'translateY(-20px)';
@@ -361,30 +354,27 @@
                 
                 // --- 5 等級外觀系統 ---
                 if (animal.level === 2) {
-                    el.style.fontSize = '55px'; // 稍微變大
+                    el.style.fontSize = '55px';
                 } else if (animal.level === 3) {
-                    el.style.fontSize = '70px'; // 巨大化
+                    el.style.fontSize = '70px';
                 } else if (animal.level === 4) {
                     el.style.fontSize = '85px';
-                    el.innerText = animal.emoji + '✨'; // 閃耀特效
+                    el.innerText = animal.emoji + '✨';
                 } else if (animal.level >= 5) {
                     el.style.fontSize = '100px';
-                    el.innerText = animal.emoji + '👑'; // 終極皇冠
-                    el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))'; // 發光陰影
+                    el.innerText = animal.emoji + '👑';
+                    el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))';
                 }
 
-                // --- 5 等級互動系統 (支援滑鼠與手機觸控) ---
+                // --- 5 等級互動系統 ---
                 el.onclick = (e) => {
                     progressTask('pet', 3);
-                    // 為了確保手機也能正確抓取位置，使用 e.clientX/Y 是兼容的
                     createHeart(e.clientX, e.clientY);
                     
                     if (animal.level >= 4) {
-                        // 等級 4 以上：開心跳躍加翻滾
                         el.style.transform = 'translateY(-40px) rotate(360deg)';
                         setTimeout(() => el.style.transform = '', 500);
                     } else if (animal.level >= 2) {
-                        // 等級 2~3：原地翻滾
                         el.style.transform = 'rotate(360deg)';
                         setTimeout(() => el.style.transform = '', 500);
                     }
@@ -410,14 +400,15 @@
             setTimeout(() => heart.remove(), 1000);
         }
 
-        // --- 抽獎與合成機制 ---
+        // --- 抽獎與棲息地機制 ---
         document.getElementById('btn-gacha').onclick = () => {
             if (state.tickets >= 1) {
                 state.tickets--;
                 
+                // 從 30 種動物中隨機抽取
                 const newEmoji = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
+                const targetScene = animalSceneMap[newEmoji]; // 找到牠的專屬棲息地
                 
-                // 檢查是否已擁有並合併 (5等級系統)
                 const existing = state.animals.find(a => a.emoji === newEmoji);
                 if (existing) {
                     if (existing.level < 5) {
@@ -430,8 +421,15 @@
                         showToast(`💖 你的 ${newEmoji} 已經滿級了，牠開心地蹭了蹭你！`);
                     }
                 } else {
+                    // 新增動物
                     addAnimal(newEmoji);
-                    showToast(`🎁 恭喜抽到新朋友：${newEmoji}！`);
+                    
+                    // 檢查動物出現的場景是否為玩家當下所在場景
+                    if (targetScene === state.currentScene) {
+                        showToast(`🎁 恭喜抽到新朋友：${newEmoji}！`);
+                    } else {
+                        showToast(`🎁 抽到 ${newEmoji}！牠已經跑到【${getSceneName(targetScene)}】去囉！`);
+                    }
                 }
                 
                 updateUI();
@@ -440,11 +438,12 @@
         };
 
         function addAnimal(emoji) {
+            const targetScene = animalSceneMap[emoji]; // 強制分配到專屬棲息地
             state.animals.push({
                 id: Date.now(),
                 emoji: emoji,
                 level: 1,
-                scene: state.currentScene,
+                scene: targetScene,
                 x: 10 + Math.random() * 60,
                 y: 20 + Math.random() * 60 
             });

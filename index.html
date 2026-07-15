@@ -13,27 +13,21 @@
             flex: 1; 
             position: relative; 
             overflow: hidden;
-            /* 動畫設定：將背景放大，讓它有流動的空間 */
             background-size: 300% 300%;
             animation: watercolorFlow 15s ease-in-out infinite;
         }
         
-        /* 定義水彩緩慢流動的動畫節奏 */
         @keyframes watercolorFlow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        /* 水彩風格背景設定 (加上 #scene-container 提高權重，覆蓋預設值) */
         #scene-container.bg-room { 
             background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); 
         }
         #scene-container.bg-grass { 
             background-image: linear-gradient(120deg, #e8f5e9, #c8e6c9, #dcedc8, #f1f8e9); 
-        }
-        #scene-container.bg-ice { 
-            background-image: linear-gradient(120deg, #e0f7fa, #b2ebf2, #e3f2fd, #e0f2f1); 
         }
         #scene-container.bg-ocean { 
             background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); 
@@ -54,7 +48,6 @@
 
         h2, h3 { margin: 0; color: #5d5d5d; }
         
-        /* 按鈕樣式 */
         button {
             border: none;
             padding: 10px 15px;
@@ -79,23 +72,18 @@
         .gacha-btn:hover { background: #ff9e99; }
         .gacha-btn:disabled { background: #e0e0e0; cursor: not-allowed; transform: none; }
 
-        /* 面板區塊 */
         .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         
-        /* 任務進度 */
         .task { margin-bottom: 12px; font-size: 14px; color: #666; }
         .task-title { display: flex; justify-content: space-between; margin-bottom: 5px; }
         progress { width: 100%; height: 8px; border-radius: 4px; }
         progress::-webkit-progress-bar { background-color: #f0f0f0; border-radius: 4px; }
         progress::-webkit-progress-value { background-color: #b2d8d8; border-radius: 4px; }
 
-        /* 場景切換 */
         .scene-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         
-        /* 互動控制 */
         .action-btns { display: flex; gap: 10px; margin-top: 10px;}
 
-        /* 小動物實體 */
         .animal {
             position: absolute;
             font-size: 40px;
@@ -110,7 +98,6 @@
         }
         .animal:hover { transform: scale(1.1); }
         
-        /* 互動特效 */
         .heart-particle {
             position: absolute; color: #ff8fb3; font-size: 20px;
             animation: floatUp 1s ease-out forwards; pointer-events: none;
@@ -121,7 +108,6 @@
             100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
         }
 
-        /* 系統提示 */
         #toast {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
@@ -129,7 +115,6 @@
             white-space: nowrap;
         }
 
-        /* 手機版 RWD 響應式設計 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             #scene-container { flex: none; height: 50vh; }
@@ -138,7 +123,8 @@
                 border-radius: 20px 20px 0 0; padding: 15px;
                 box-shadow: 0 -5px 15px rgba(0,0,0,0.05); gap: 15px;
             }
-            .scene-btns { grid-template-columns: repeat(4, 1fr); }
+            /* 手機版改為一排三個按鈕，以符合目前的場景數量 */
+            .scene-btns { grid-template-columns: repeat(3, 1fr); }
             .scene-btns button { font-size: 12px; padding: 8px 2px; }
             #toast { top: 10px; font-size: 14px; }
         }
@@ -192,8 +178,7 @@
             <h3>🎨 切換場景</h3>
             <div class="scene-btns">
                 <button onclick="changeScene('room', '房間')">🏠 房間</button>
-                <button onclick="changeScene('grass', '草地')">🌿 草地</button>
-                <button onclick="changeScene('ice', '冰原')">❄️ 冰原</button>
+                <button onclick="changeScene('grass', '草原')">🌿 草原</button>
                 <button onclick="changeScene('ocean', '海洋')">🌊 海洋</button>
             </div>
         </div>
@@ -216,12 +201,11 @@
             currentScene: 'room'
         };
 
-        // --- 30種動物與其專屬生存環境字典 ---
+        // --- 取消冰原，重新分配的 30 種動物字典 ---
         const animalData = {
             'room':  ['🐈', '🐕', '🐹', '🦜', '🐰', '🐭', '🦎'],
-            'grass': ['🦊', '🐼', '🐨', '🦔', '🦘', '🐎', '🐑', '🦒'],
-            'ice':   ['🐻‍❄️', '🐧', '🦭', '🐺', '🦉', '🦌', '🐐'],
-            'ocean': ['🐳', '🐬', '🦈', '🐙', '🦀', '🦞', '🐡', '🐢']
+            'grass': ['🦊', '🐼', '🐨', '🦔', '🦘', '🐎', '🐑', '🦒', '🐺', '🦉', '🦌', '🐐', '🐻'],
+            'ocean': ['🐳', '🐬', '🦈', '🐙', '🦀', '🦞', '🐡', '🐢', '🐧', '🦭']
         };
 
         const animalSceneMap = {};
@@ -233,10 +217,20 @@
             });
         }
         
-        // --- 初始化 ---
         function init() {
             loadData();
             
+            // 防呆處理：如果玩家原本有冰原的進度，載入時強制將冰原的動物分配回正確的新家
+            state.animals.forEach(animal => {
+                if(animal.scene === 'ice') {
+                    animal.scene = animalSceneMap[animal.emoji] || 'grass';
+                }
+            });
+            // 防呆處理：如果玩家原本停留在冰原，將其送回房間
+            if(state.currentScene === 'ice') {
+                state.currentScene = 'room';
+            }
+
             if (state.animals.length === 0) {
                 addAnimal('🐰');
             }
@@ -246,7 +240,6 @@
             changeScene(state.currentScene, getSceneName(state.currentScene), true);
         }
 
-        // --- 本地儲存 ---
         function saveData() {
             localStorage.setItem('healing_game_data', JSON.stringify(state));
         }
@@ -271,7 +264,6 @@
             }
         }
 
-        // --- UI 更新 ---
         function updateUI() {
             document.getElementById('task-time-bar').value = state.tasks.time;
             document.getElementById('task-time-text').innerText = `${state.tasks.time}/300`;
@@ -295,11 +287,9 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.opacity = 1;
-            // 系統提示時間設為 5000 毫秒 (5秒)
             setTimeout(() => toast.style.opacity = 0, 5000);
         }
 
-        // --- 任務系統 ---
         function progressTask(type, max) {
             if (state.tasks[type] < max) {
                 state.tasks[type]++;
@@ -318,7 +308,6 @@
             }, 1000);
         }
 
-        // --- 互動系統 ---
         function changeScene(sceneId, sceneName, skipTask = false) {
             state.currentScene = sceneId;
             const container = document.getElementById('scene-container');
@@ -332,7 +321,8 @@
         }
 
         function getSceneName(id) {
-            const map = { room:'房間', grass:'草地', ice:'冰原', ocean:'海洋' };
+            // 更新地名對照表，移除冰原
+            const map = { room:'房間', grass:'草原', ocean:'海洋' };
             return map[id];
         }
 
@@ -350,7 +340,6 @@
             });
         }
 
-        // --- 動物系統 ---
         function renderAnimals() {
             const container = document.getElementById('scene-container');
             Array.from(container.children).forEach(child => {
@@ -366,21 +355,19 @@
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
-                // --- 5 等級外觀系統 ---
                 if (animal.level === 2) {
-                    el.style.fontSize = '55px';
+                    el.style.fontSize = '55px'; // 小朋友
                 } else if (animal.level === 3) {
-                    el.style.fontSize = '70px';
+                    el.style.fontSize = '70px'; // 成年
                 } else if (animal.level === 4) {
                     el.style.fontSize = '85px';
-                    el.innerText = animal.emoji + '✨';
+                    el.innerText = animal.emoji + '✨'; // 得到星星
                 } else if (animal.level >= 5) {
                     el.style.fontSize = '100px';
-                    el.innerText = animal.emoji + '👑';
+                    el.innerText = animal.emoji + '👑'; // 得到皇冠
                     el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))';
                 }
 
-                // --- 5 等級互動系統 ---
                 el.onclick = (e) => {
                     progressTask('pet', 3);
                     createHeart(e.clientX, e.clientY);
@@ -414,7 +401,6 @@
             setTimeout(() => heart.remove(), 1000);
         }
 
-        // --- 抽獎與棲息地機制 ---
         document.getElementById('btn-gacha').onclick = () => {
             if (state.tickets >= 1) {
                 state.tickets--;
@@ -426,19 +412,19 @@
                 if (existing) {
                     if (existing.level < 5) {
                         existing.level++;
-                        if(existing.level === 2) showToast(`🌱 驚喜！重複的 ${newEmoji} 稍微【長大】了！`);
-                        if(existing.level === 3) showToast(`✨ 哇！${newEmoji} 成功【巨大化】了！`);
-                        if(existing.level === 4) showToast(`🌟 奇蹟！${newEmoji} 解鎖了【閃耀特效】！`);
-                        if(existing.level === 5) showToast(`👑 太神了！${newEmoji} 達到【終極王者】型態！`);
+                        if(existing.level === 2) showToast(`🌱 驚喜！${newEmoji} 長大成【小朋友】了！`);
+                        if(existing.level === 3) showToast(`✨ 哇！${newEmoji} 已經長大【成年】了！`);
+                        if(existing.level === 4) showToast(`🌟 奇蹟！${newEmoji} 【得到星星】了！`);
+                        if(existing.level === 5) showToast(`👑 太神了！${newEmoji} 【得到皇冠】了！`);
                     } else {
-                        showToast(`💖 你的 ${newEmoji} 已經滿級了，牠開心地蹭了蹭你！`);
+                        showToast(`💖 你的 ${newEmoji} 已經戴著皇冠滿級了，牠開心地蹭了蹭你！`);
                     }
                 } else {
                     addAnimal(newEmoji);
                     if (targetScene === state.currentScene) {
-                        showToast(`🎁 恭喜抽到新朋友：${newEmoji}！`);
+                        showToast(`🎁 恭喜抽到新朋友：${newEmoji}【小寶寶】！`);
                     } else {
-                        showToast(`🎁 抽到 ${newEmoji}！牠已經跑到【${getSceneName(targetScene)}】去囉！`);
+                        showToast(`🎁 抽到 ${newEmoji}【小寶寶】！牠跑到【${getSceneName(targetScene)}】囉！`);
                     }
                 }
                 
@@ -452,14 +438,13 @@
             state.animals.push({
                 id: Date.now(),
                 emoji: emoji,
-                level: 1,
+                level: 1, 
                 scene: targetScene,
                 x: 10 + Math.random() * 60,
                 y: 20 + Math.random() * 60 
             });
         }
 
-        // 啟動
         init();
 
     </script>

@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>療癒小動物 - 實境紓壓空間</title>
+    <title>療癒小動物 - 簡約水彩紓壓空間</title>
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
         
         body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #faf8f5; }
         
+        /* 主場景區 - 簡約水彩流動動畫 */
         #scene-container { 
             flex: 1; 
             position: relative; 
             overflow: hidden;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-size: 300% 300%;
+            animation: watercolorFlow 15s ease-in-out infinite;
             transition: background-image 0.8s ease-in-out;
         }
 
-        #scene-container.bg-room { background-image: url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop'); }
-        #scene-container.bg-grass { background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop'); }
-        #scene-container.bg-ocean { background-image: url('https://images.unsplash.com/photo-1582967788606-a171c1080cb0?q=80&w=1920&auto=format&fit=crop'); }
+        @keyframes watercolorFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #scene-container.bg-room { background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); }
+        #scene-container.bg-grass { background-image: linear-gradient(120deg, #e8f5e9, #c8e6c9, #dcedc8, #f1f8e9); }
+        #scene-container.bg-ocean { background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); }
 
         #bottom-bar { 
             width: 100%; 
@@ -88,18 +94,18 @@
         .scene-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .action-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
 
+        /* 小動物實體 - 基礎大小調大為 60px */
         .animal {
             position: absolute;
-            font-size: 40px;
+            font-size: 60px; /* 這裡從原本的 40px 放大 */
             cursor: pointer;
             user-select: none;
             transition: left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100px; height: 100px;
+            width: 120px; height: 120px;
             -webkit-tap-highlight-color: transparent; 
-            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
         }
         .animal:hover { transform: scale(1.1) !important; }
         
@@ -374,20 +380,20 @@
                 el.id = 'animal-' + animal.id; 
                 el.innerText = animal.emoji;
                 
-                // 為了避免一進場出現從 0,0 飛過來的動畫，先將 transition 關閉
                 el.style.transition = 'none';
                 el.style.left = animal.x + '%';
                 el.style.top = animal.y + '%';
                 
+                // --- 所有等級的尺寸都經過放大 ---
                 if (animal.level === 2) {
-                    el.style.fontSize = '55px'; 
+                    el.style.fontSize = '75px'; // 原本 55px
                 } else if (animal.level === 3) {
-                    el.style.fontSize = '70px'; 
+                    el.style.fontSize = '90px'; // 原本 70px
                 } else if (animal.level === 4) {
-                    el.style.fontSize = '85px';
+                    el.style.fontSize = '110px'; // 原本 85px
                     el.innerText = animal.emoji + '✨'; 
                 } else if (animal.level >= 5) {
-                    el.style.fontSize = '100px';
+                    el.style.fontSize = '130px'; // 原本 100px
                     el.innerText = animal.emoji + '👑'; 
                     el.style.filter = 'drop-shadow(0px 0px 15px rgba(255, 215, 0, 1))';
                 }
@@ -407,7 +413,6 @@
 
                 container.appendChild(el);
 
-                // 獨立出散步函數
                 const startWalking = () => {
                     let dx = (Math.random() - 0.5) * 30; 
                     let dy = (Math.random() - 0.5) * 20; 
@@ -419,7 +424,6 @@
                     el.style.top = animal.y + '%';
                 };
 
-                // 給予 50 毫秒極短延遲，讓瀏覽器確認初始位置後，把動畫效果開回來，並馬上走出第一步
                 setTimeout(() => {
                     el.style.transition = 'left 4s ease-in-out, top 4s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                     startWalking();

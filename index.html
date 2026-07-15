@@ -3,107 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>療癒動物園 - 水彩流動空間</title>
+    <title>療癒動物園</title>
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #faf8f5; }
         
-        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #faf8f5; }
-
-        /* =========================================
-           開頭畫面設定
-           ========================================= */
-        #start-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 999;
-            background: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4);
-            background-size: 300% 300%;
-            animation: watercolorFlow 15s ease-in-out infinite;
-        }
-
-        .start-content {
-            background: rgba(255, 255, 255, 0.9); padding: 50px; border-radius: 20px;
-            text-align: center; z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .btn-start {
-            background: #ffb7b2; color: white; font-size: 22px; padding: 15px 50px;
-            border-radius: 50px; border: none; cursor: pointer; pointer-events: auto;
-        }
-
-        /* 跑馬燈 */
-        .marquee { position: absolute; width: 100%; overflow: hidden; display: flex; z-index: 5; }
-        .marquee.top { top: 50px; }
-        .marquee.bottom { bottom: 50px; }
-        .marquee-content { display: flex; animation: scroll 25s linear infinite; }
-        .marquee.top .marquee-content { animation-direction: reverse; }
-        .marquee-content span { font-size: 50px; margin: 0 25px; animation: bob 0.8s ease-in-out infinite alternate; }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-        @keyframes bob { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
-        @keyframes watercolorFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        /* =========================================
-           遊戲主體
-           ========================================= */
-        #game-container { display: none; flex-direction: column; height: 100vh; width: 100vw; }
+        /* 開頭畫面 */
+        #start-screen { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; background: linear-gradient(120deg, #fff3e0, #ffe0b2); }
+        .btn-start { background:#ffb7b2; color:white; font-size:24px; padding:20px 60px; border-radius:50px; border:none; cursor:pointer; }
         
-        #scene-container { 
-            flex: 1; position: relative; overflow: hidden; 
-            background-size: 300% 300%; animation: watercolorFlow 15s ease-in-out infinite;
-            transition: background-image 0.8s ease-in-out;
-        }
-
-        /* 改回水彩漸層 */
-        #scene-container.bg-room { background-image: linear-gradient(120deg, #fff3e0, #ffe0b2, #ffccbc, #fff9c4); }
-        #scene-container.bg-grass { background-image: linear-gradient(120deg, #e8f5e9, #c8e6c9, #dcedc8, #f1f8e9); }
-        #scene-container.bg-ocean { background-image: linear-gradient(120deg, #e3f2fd, #90caf9, #b2ebf2, #81d4fa); }
-
-        #bottom-bar { width: 100%; background: rgba(255, 255, 255, 0.95); padding: 15px; display: flex; gap: 10px; overflow-x: auto; }
-        .panel { background: white; padding: 10px; border-radius: 10px; flex: 1; min-width: 150px; text-align: center; }
-        button { border: none; padding: 10px; border-radius: 8px; background: #eee; cursor: pointer; font-weight: bold; }
+        /* 遊戲區域 */
+        #game-container { display:none; flex-direction:column; height:100vh; width:100vw; }
+        #scene-container { flex:1; position:relative; overflow:hidden; background-size:300% 300%; animation: bgFlow 15s infinite; }
         
-        .animal {
-            position: absolute; font-size: 80px; cursor: pointer; 
-            transition: left 4s linear, top 4s linear, transform 0.3s;
-            filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.1));
-        }
+        @keyframes bgFlow { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+        .bg-room { background: linear-gradient(120deg, #fff3e0, #ffccbc); }
+        .bg-grass { background: linear-gradient(120deg, #e8f5e9, #c8e6c9); }
+        .bg-ocean { background: linear-gradient(120deg, #e3f2fd, #90caf9); }
         
-        #handbook-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
-        .handbook-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        .hb-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .hb-item { font-size: 30px; padding: 10px; background: #faf8f5; border-radius: 10px; cursor: pointer; }
-        .hb-item.locked { opacity: 0.3; }
+        /* 底部面板 */
+        #bottom-bar { width:100%; background:white; padding:15px; display:flex; gap:10px; box-shadow:0 -2px 10px rgba(0,0,0,0.1); }
+        .panel { flex:1; text-align:center; }
+        button { padding:10px; cursor:pointer; border-radius:5px; border:1px solid #ccc; background:#fff; }
+        
+        .animal { position:absolute; font-size:80px; transition:all 2s linear; cursor:pointer; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <div class="marquee top"><div class="marquee-content"><span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span></div><div class="marquee-content"><span>🐰</span><span>🐈</span><span>🐕</span><span>🦊</span><span>🐼</span><span>🐨</span><span>🐧</span><span>🐢</span><span>🐳</span><span>🦦</span><span>🐹</span></div></div>
-        <div class="start-content">
-            <h1>療癒動物園</h1>
-            <button class="btn-start" onclick="startGame()">Game Start</button>
-        </div>
-        <div class="marquee bottom"><div class="marquee-content"><span>🐥</span><span>🦆</span><span>🐷</span><span>🦁</span><span>🐮</span><span>🐯</span><span>🦒</span><span>🐘</span><span>🦓</span><span>🦏</span><span>🦌</span></div><div class="marquee-content"><span>🐥</span><span>🦆</span><span>🐷</span><span>🦁</span><span>🐮</span><span>🐯</span><span>🦒</span><span>🐘</span><span>🦓</span><span>🦏</span><span>🦌</span></div></div>
+        <h1>療癒動物園</h1>
+        <button class="btn-start" onclick="startGame()">Game Start</button>
     </div>
 
     <div id="game-container">
         <div id="scene-container" class="bg-room"></div>
         <div id="bottom-bar">
-            <div class="panel"><h3>任務</h3><progress id="task-feed-bar" max="5" value="0"></progress></div>
-            <div class="panel"><button id="btn-gacha" onclick="gacha()" disabled>抽獎</button></div>
+            <div class="panel"><button id="btn-gacha" onclick="gacha()" disabled>抽獎券: 0</button></div>
             <div class="panel"><button onclick="feedOneAnimal()">餵食</button></div>
-            <div class="panel"><button onclick="openHandbook()">圖鑑</button></div>
-            <div class="panel"><button onclick="changeScene('room','房間')">房</button><button onclick="changeScene('grass','草原')">草</button><button onclick="changeScene('ocean','海洋')">海</button></div>
+            <div class="panel"><button onclick="changeScene('room','草','海')">切換場景</button></div>
         </div>
     </div>
 
-    <div id="handbook-modal"><div class="handbook-content"><div onclick="closeHandbook()" style="cursor:pointer">✖ 關閉</div><div class="hb-grid" id="hb-grid"></div></div></div>
-
     <script>
-        let state = { tickets: 0, tasks: { feed: 0 }, animals: [], currentScene: 'room' };
-        const animalData = { 'room': ['🐈','🐕','🐰'], 'grass': ['🦊','🐼','🐨'], 'ocean': ['🐳','🐬','🐧'] };
-        const availableAnimals = ['🐈','🐕','🐰','🦊','🐼','🐨','🐳','🐬','🐧'];
-
+        let state = { tickets:0, animals:[], currentScene:'room' };
+        
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
@@ -113,44 +57,40 @@
         function gacha() {
             if (state.tickets < 1) return;
             state.tickets--;
-            let emoji = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
-            let existing = state.animals.find(a => a.emoji === emoji);
-            if (existing) existing.level = Math.min(existing.level + 1, 5);
-            else state.animals.push({ id: Date.now(), emoji, level: 1, scene: 'room', x: 50, y: 50 });
-            renderAnimals();
+            state.animals.push({ id:Date.now(), emoji:'🐱', level:1, x:50, y:50 });
+            updateUI(); renderAnimals();
         }
 
         function feedOneAnimal() {
-            state.tasks.feed = (state.tasks.feed + 1) % 5;
-            if (state.tasks.feed === 0) state.tickets++;
-            document.getElementById('task-feed-bar').value = state.tasks.feed;
+            state.tickets++;
+            updateUI();
+        }
+
+        function changeScene() {
+            const scenes = ['room', 'grass', 'ocean'];
+            let idx = scenes.indexOf(state.currentScene);
+            state.currentScene = scenes[(idx + 1) % 3];
+            document.getElementById('scene-container').className = 'bg-' + state.currentScene;
+            renderAnimals();
+        }
+
+        function updateUI() {
+            document.getElementById('btn-gacha').innerText = '抽獎券: ' + state.tickets;
             document.getElementById('btn-gacha').disabled = state.tickets < 1;
         }
 
         function renderAnimals() {
             const container = document.getElementById('scene-container');
             container.innerHTML = '';
-            state.animals.filter(a => a.scene === state.currentScene).forEach(a => {
+            state.animals.forEach(a => {
                 const el = document.createElement('div');
                 el.className = 'animal';
-                el.innerText = a.level >= 5 ? a.emoji + '👑' : a.emoji;
-                el.style.left = a.x + '%'; el.style.top = a.y + '%';
-                el.style.fontSize = (60 + (a.level * 20)) + 'px';
+                el.innerText = a.emoji;
+                el.style.left = a.x + '%';
+                el.style.top = a.y + '%';
                 container.appendChild(el);
             });
         }
-
-        function changeScene(s) { state.currentScene = s; document.getElementById('scene-container').className = 'bg-' + s; renderAnimals(); }
-        function openHandbook() { 
-            document.getElementById('handbook-modal').style.display = 'flex';
-            const grid = document.getElementById('hb-grid'); grid.innerHTML = '';
-            availableAnimals.forEach(e => {
-                const item = document.createElement('div');
-                item.className = 'hb-item' + (state.animals.find(a=>a.emoji===e) ? '' : ' locked');
-                item.innerText = e; grid.appendChild(item);
-            });
-        }
-        function closeHandbook() { document.getElementById('handbook-modal').style.display = 'none'; }
     </script>
 </body>
 </html>

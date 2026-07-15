@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 加入 maximum-scale=1.0, user-scalable=no 防止手機連點時畫面跟著放大縮小 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>療癒小動物 - 水彩風紓壓空間</title>
     <style>
         * { box-sizing: border-box; font-family: '微軟正黑體', sans-serif; }
@@ -15,9 +16,10 @@
             transition: background 1s ease-in-out;
             background-color: #fff3e0; /* 預設房間色 */
             background-image: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.4) 100%);
+            overflow: hidden;
         }
         
-        /* 側邊欄區 */
+        /* 側邊欄區 (電腦版預設樣式) */
         #sidebar { 
             width: 320px; 
             background: rgba(255, 255, 255, 0.85); 
@@ -27,6 +29,7 @@
             flex-direction: column; 
             gap: 20px;
             z-index: 10;
+            overflow-y: auto; /* 確保內容過長時可以滑動 */
         }
 
         h2, h3 { margin: 0; color: #5d5d5d; }
@@ -83,6 +86,8 @@
             align-items: center;
             justify-content: center;
             width: 100px; height: 100px;
+            /* 修正手機點擊時可能出現的藍色反白方塊 */
+            -webkit-tap-highlight-color: transparent; 
         }
         .animal:hover { transform: scale(1.1); }
         
@@ -90,6 +95,7 @@
         .heart-particle {
             position: absolute; color: #ff8fb3; font-size: 20px;
             animation: floatUp 1s ease-out forwards; pointer-events: none;
+            z-index: 50;
         }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
@@ -107,6 +113,39 @@
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
             border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+            white-space: nowrap;
+        }
+
+        /* =========================================
+           手機版 RWD 響應式設計 (螢幕寬度小於 768px 時觸發)
+           ========================================= */
+        @media (max-width: 768px) {
+            body { 
+                flex-direction: column; /* 改為上下排列 */
+            }
+            #scene-container { 
+                flex: none; 
+                height: 50vh; /* 上半部 50% 留給場景 */
+            }
+            #sidebar { 
+                width: 100%; 
+                flex: 1; /* 下半部填滿留給面板 */
+                border-radius: 20px 20px 0 0; /* 頂部加入圓角，類似 App 抽屜 */
+                padding: 15px;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+                gap: 15px;
+            }
+            .scene-btns { 
+                grid-template-columns: repeat(4, 1fr); /* 場景按鈕橫排 4 個 */
+            }
+            .scene-btns button {
+                font-size: 12px; /* 字體微調避免跑版 */
+                padding: 8px 2px;
+            }
+            #toast {
+                top: 10px; /* 手機版提示訊息稍微往上挪 */
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -190,12 +229,12 @@
         function init() {
             loadData();
             
-            // 修正順序：確保在畫出畫面之前，發放初始小動物
+            // 確保在畫出畫面之前，發放初始小動物
             if (state.animals.length === 0) {
                 addAnimal('🐰');
             }
             
-            updateUI(); // 這裡會連同剛加入的初始動物一起儲存
+            updateUI(); 
             startTimer();
             changeScene(state.currentScene, getSceneName(state.currentScene), true);
         }
@@ -334,9 +373,10 @@
                     el.style.filter = 'drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.8))'; // 發光陰影
                 }
 
-                // --- 5 等級互動系統 ---
+                // --- 5 等級互動系統 (支援滑鼠與手機觸控) ---
                 el.onclick = (e) => {
                     progressTask('pet', 3);
+                    // 為了確保手機也能正確抓取位置，使用 e.clientX/Y 是兼容的
                     createHeart(e.clientX, e.clientY);
                     
                     if (animal.level >= 4) {
